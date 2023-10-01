@@ -6,6 +6,8 @@
     <Nullable>enable</Nullable>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
 	<RuntimeIdentifier>linux-x64</RuntimeIdentifier>
+	<PublishFramework>net6.0</PublishFramework>
+	<SelfContained>false</SelfContained>
     <AWSProjectType>Lambda</AWSProjectType>
     <!-- This property makes the build directory similar to a publish directory and helps the AWS .NET Lambda Mock Test Tool find project dependencies. -->
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
