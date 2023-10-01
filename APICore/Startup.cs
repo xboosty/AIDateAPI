@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Localization.Routing;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Hosting;
 
 namespace APICore;
 
@@ -77,10 +78,21 @@ public class Startup
             app.UseDeveloperExceptionPage();
         }
         app.UseSwagger();
-        app.UseSwaggerUI(c =>
+
+        if (env.IsProduction())
         {
-            c.SwaggerEndpoint("/swagger/v1/swagger.json", "API Core V1");
-        });
+            app.UseSwaggerUI(c =>
+           {
+               c.SwaggerEndpoint("/Prod/swagger/v1/swagger.json", "API Core V1");
+           });
+        }
+        else if (env.IsDevelopment())
+        {
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "API Core V1");
+            });
+        }
 
         #region Localization
 
