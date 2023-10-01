@@ -1,4 +1,5 @@
-﻿using APICore.Common.DTO.Response;
+﻿using APICore.BasicResponses;
+using APICore.Common.DTO.Response;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -34,16 +35,18 @@ namespace APICore.Controllers
         [ProducesResponseType((int)HttpStatusCode.ServiceUnavailable)]
         public async Task<IActionResult> HealthCheckActionResult()
         {
-            var report = await _healthCheckService.CheckHealthAsync();
-            var list = new List<HealthCheckResponse>();
-            foreach (var item in report.Entries)
-            {
-                var healthCheckItem = _mapper.Map<HealthCheckResponse>(item.Value);
-                healthCheckItem.ServiceName = item.Key;
-                list.Add(healthCheckItem);
-            }
+            return Ok(new ApiOkResponse(200));
 
-            return report.Status == HealthStatus.Healthy ? Ok(list) : StatusCode((int)HttpStatusCode.ServiceUnavailable, list);
+            //var report = await _healthCheckService.CheckHealthAsync();
+            //var list = new List<HealthCheckResponse>();
+            //foreach (var item in report.Entries)
+            //{
+            //    var healthCheckItem = _mapper.Map<HealthCheckResponse>(item.Value);
+            //    healthCheckItem.ServiceName = item.Key;
+            //    list.Add(healthCheckItem);
+            //}
+
+            //return report.Status == HealthStatus.Healthy ? Ok(list) : StatusCode((int)HttpStatusCode.ServiceUnavailable, list);
         }
     }
 }
