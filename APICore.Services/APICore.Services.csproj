@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+ <ItemGroup>
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.10.0" />
+    <PackageReference Include="DeviceDetector.NET" Version="4.3.0" />
+    <PackageReference Include="libphonenumber-csharp" Version="8.12.56" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.1" />
+    <PackageReference Include="Askmethat.Aspnet.JsonLocalizer" Version="3.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0" />
+    <PackageReference Include="PasswordGenerator" Version="2.1.0" />
+    <PackageReference Include="rlcx.suid" Version="1.0.1" />
+    <PackageReference Include="Sendgrid" Version="9.25.2" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.19.0" />
+    <PackageReference Include="Twilio" Version="5.80.1" />
+    <PackageReference Include="Wangkanai.Detection" Version="4.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\APICore.Data\APICore.Data.csproj" />
+  </ItemGroup>
+</Project>
