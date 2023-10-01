@@ -30,23 +30,23 @@ namespace APICore.Controllers
         /// Api health check that allows us to see the status of the external and infrastructure services.
         /// </summary>
         [AllowAnonymous]
-        [HttpGet("health-check")]
+        [HttpGet("Prod/health-check")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.ServiceUnavailable)]
         public async Task<IActionResult> HealthCheckActionResult()
         {
             return Ok(new ApiOkResponse(200));
 
-            //var report = await _healthCheckService.CheckHealthAsync();
-            //var list = new List<HealthCheckResponse>();
-            //foreach (var item in report.Entries)
-            //{
-            //    var healthCheckItem = _mapper.Map<HealthCheckResponse>(item.Value);
-            //    healthCheckItem.ServiceName = item.Key;
-            //    list.Add(healthCheckItem);
-            //}
+            var report = await _healthCheckService.CheckHealthAsync();
+            var list = new List<HealthCheckResponse>();
+            foreach (var item in report.Entries)
+            {
+                var healthCheckItem = _mapper.Map<HealthCheckResponse>(item.Value);
+                healthCheckItem.ServiceName = item.Key;
+                list.Add(healthCheckItem);
+            }
 
-            //return report.Status == HealthStatus.Healthy ? Ok(list) : StatusCode((int)HttpStatusCode.ServiceUnavailable, list);
+            return report.Status == HealthStatus.Healthy ? Ok(list) : StatusCode((int)HttpStatusCode.ServiceUnavailable, list);
         }
     }
 }
