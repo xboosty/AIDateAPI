@@ -83,7 +83,7 @@ public class Startup
         {
             app.UseSwaggerUI(c =>
            {
-               c.SwaggerEndpoint("/Prod/swagger/v1/swagger.json", "API Core V1");
+               c.SwaggerEndpoint("v1/swagger.json", "API Core V1");
            });
         }
         else if (env.IsDevelopment())
