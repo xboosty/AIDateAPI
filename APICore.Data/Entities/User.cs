@@ -26,8 +26,8 @@ namespace APICore.Data.Entities
         public string Password { get; set; }
         public StatusEnum Status { get; set; }
         public DateTimeOffset? LastLoggedIn { get; set; }
-        public string Avatar { get; set; }
-        public string AvatarMimeType { get; set; }
+        public string? Avatar { get; set; }
+        public string? AvatarMimeType { get; set; }
         public virtual ICollection<UserToken> UserTokens { get; set; }
     }
 }
