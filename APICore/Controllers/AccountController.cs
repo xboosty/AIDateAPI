@@ -144,6 +144,21 @@ namespace APICore.Controllers
         }
 
         /// <summary>
+        /// Validate verification code sent by Email or Phone.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost("verify-code")]
+        [AllowAnonymous]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ApiResponse), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> VerifyUserCode([FromBody] VerificationCodeRequest request)
+        {
+            var result = await _accountService.ValidateVerificationCodeAsync(request);
+            return Ok(new ApiOkResponse(result));
+        }
+
+        /// <summary>
         /// Upload Avatar. Requires authentication.
         /// </summary>
         /// <param name="file">Avatar file.</param>

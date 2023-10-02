@@ -126,7 +126,7 @@ namespace APICore.Services.Impls
             return true;
         }
 
-        public async Task<bool> ValidateVerificationCodeAsync(VerificationCodeRequest request, bool isLoggedUserAdmin)
+        public async Task<bool> ValidateVerificationCodeAsync(VerificationCodeRequest request)
         {
             var user = await _uow.UserRepository.FirstOrDefaultAsync(u => u.Email == request.Email.ToLower() && !string.IsNullOrEmpty(request.Email));
             user = (user == null) ? (await _uow.UserRepository.FirstOrDefaultAsync(u => (u.PhoneCode == request.Phone.Code && u.Phone == request.Phone.Number) && !string.IsNullOrEmpty(request.Phone.Code + request.Phone.Number)))

@@ -29,5 +29,7 @@ namespace APICore.Services
         Task<User> UploadAvatar(IFormFile file, int userId);
 
         Task<bool> ForgotPasswordAsync(ForgotPasswordRequest forgotPassRequest);
+
+        Task<bool> ValidateVerificationCodeAsync(VerificationCodeRequest request);
     }
 }
