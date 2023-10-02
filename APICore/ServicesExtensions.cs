@@ -61,9 +61,9 @@ namespace APICore
                         { securityScheme, Array.Empty<string>() }
                     }
                 );
-                var basePath = AppContext.BaseDirectory;
-                var xmlFile = $"{Assembly.GetEntryAssembly().GetName().Name}.xml";
-                var fileName = Path.Combine(basePath, xmlFile);
+                var assemblyLocation = Assembly.GetExecutingAssembly().Location;
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var fileName = Path.Combine(Path.GetDirectoryName(assemblyLocation), xmlFile);
                 options.IncludeXmlComments(fileName);
             });
         }
