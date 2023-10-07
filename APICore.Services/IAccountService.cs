@@ -8,7 +8,7 @@ namespace APICore.Services
 {
     public interface IAccountService
     {
-        Task SignUpAsync(SignUpRequest suRequest);
+        Task<User> SignUpAsync(SignUpRequest suRequest);
 
         Task<(User user, string accessToken, string refreshToken)> LoginAsync(LoginRequest loginRequest);
 

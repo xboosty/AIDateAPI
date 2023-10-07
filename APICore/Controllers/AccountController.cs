@@ -40,6 +40,7 @@ namespace APICore.Controllers
         /// Register request object. Include email used as username, password, full name and
         /// birthday. Valid password should have: 1- Non alphanumeric characters 2- Uppercase
         /// letters 3- Six characters minimun
+        /// Sexual Orientation - 0 (Hetero), 1(Bisexual), 2(Homosexual), 3(Transexual)
         /// </param>
         [HttpPost]
         [Route("register")]
@@ -48,8 +49,9 @@ namespace APICore.Controllers
         [ProducesResponseType(typeof(ApiResponse), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Register([FromBody] SignUpRequest register)
         {
-            await _accountService.SignUpAsync(register);
-            return Created("", true);
+            var user = await _accountService.SignUpAsync(register);
+            var mapped = _mapper.Map<UserResponse>(user);
+            return Ok(new ApiOkResponse(mapped));
         }
 
         /// <summary>

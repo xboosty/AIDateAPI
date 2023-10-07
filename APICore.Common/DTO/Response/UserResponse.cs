@@ -16,5 +16,6 @@ namespace APICore.Common.DTO.Response
         public string Status { get; set; }
         public string Avatar { get; set; }
         public string AvatarMimeType { get; set; }
+        public string SexualOrientation { get; set; }
     }
 }
