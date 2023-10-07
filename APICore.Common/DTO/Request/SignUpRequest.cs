@@ -28,6 +28,6 @@ namespace APICore.Common.DTO.Request
         public int Gender { get; set; }
 
         [Required]
-        public string SexualOrientation { get; set; }
+        public int SexualOrientation { get; set; }
     }
 }

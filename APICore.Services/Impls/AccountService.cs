@@ -253,7 +253,7 @@ namespace APICore.Services.Impls
             return true;
         }
 
-        public async Task SignUpAsync(SignUpRequest suRequest)
+        public async Task<User> SignUpAsync(SignUpRequest suRequest)
         {
             if (!suRequest.Password.MatchWithPasswordPolicy()) throw new PasswordRequirementsBadRequestException(_localizer);
             if (suRequest.Password != suRequest.ConfirmationPassword) throw new PasswordsDoesntMatchBadRequestException(_localizer);
@@ -276,7 +276,7 @@ namespace APICore.Services.Impls
             existingUser = await RegisterPhone(suRequest.Phone.Code, suRequest.Phone.Number, false);
             if (existingUser == null)
             {
-                var user = new User
+                existingUser = new User
                 {
                     Email = suRequest.Email.ToLower(),
                     IsEmailVerified = false,
@@ -292,9 +292,10 @@ namespace APICore.Services.Impls
                     VerificationCode = verificationCode,
                     CreatedCode = DateTime.UtcNow,
                     IsGeneratedPassChanged = true,
+                    SexualOrientation = (SexualOrientationEnum)suRequest.SexualOrientation
                 };
 
-                await _uow.UserRepository.AddAsync(user);
+                await _uow.UserRepository.AddAsync(existingUser);
             }
             else
             {
@@ -302,6 +303,7 @@ namespace APICore.Services.Impls
                 existingUser.IsEmailVerified = false;
                 existingUser.FullName = suRequest.FullName;
                 existingUser.Phone = suRequest.Phone.Number;
+                existingUser.SexualOrientation = (SexualOrientationEnum)suRequest.SexualOrientation;
                 existingUser.PhoneCode = suRequest.Phone.Code;
                 existingUser.IsPhoneVerified = false;
                 existingUser.Password = GetSha256Hash(suRequest.Password);
@@ -314,6 +316,8 @@ namespace APICore.Services.Impls
                 _uow.UserRepository.Update(existingUser);
             }
             await _uow.CommitAsync();
+
+            return existingUser;
         }
 
         public async Task<User> RegisterPhone(string phoneCode, string phoneNumber, bool toValidateOldPhone)

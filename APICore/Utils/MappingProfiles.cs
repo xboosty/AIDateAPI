@@ -15,6 +15,7 @@ namespace APICore.Utils
                 .ForMember(d => d.Status, opts => opts.MapFrom(source => source.Status.ToString()))
                 .ForMember(d => d.GenderId, opts => opts.MapFrom(source => (int)source.Gender))
                 .ForMember(d => d.Gender, opts => opts.MapFrom(source => source.Gender.ToString()))
+                .ForMember(d => d.SexualOrientation, opts => opts.MapFrom(source => source.SexualOrientation.ToString()))
                 ;
 
             CreateMap<HealthReportEntry, HealthCheckResponse>()

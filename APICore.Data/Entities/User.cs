@@ -20,6 +20,7 @@ namespace APICore.Data.Entities
         public DateTime BirthDate { get; set; }
         public string FullName { get; set; }
         public GenderEnum Gender { get; set; }
+        public SexualOrientationEnum SexualOrientation { get; set; }
         public string Email { get; set; }
         public string PhoneCode { get; set; }
         public string Phone { get; set; }
