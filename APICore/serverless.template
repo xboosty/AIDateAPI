@@ -12,7 +12,7 @@
         "Runtime": "dotnet6",
         "CodeUri": "",
         "MemorySize": 256,
-        "Timeout": 30,
+        "Timeout": 60,
         "Role": null,
         "Policies": [
           "AWSLambda_FullAccess",
