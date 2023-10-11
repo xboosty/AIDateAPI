@@ -17,6 +17,7 @@ namespace APICore.Data
         public DbSet<Setting> Setting { get; set; }
         public DbSet<Log> Log { get; set; }
         public DbSet<UserToken> UserToken { get; set; }
+        public DbSet<BlockedUsers> BlockedUsers { get; set; }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
@@ -60,6 +61,15 @@ namespace APICore.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<BlockedUsers>()
+                            .HasOne(b => b.BlockerUser)
+                            .WithMany()
+                            .HasForeignKey(b => b.BlockerUserId);
+
+            modelBuilder.Entity<BlockedUsers>()
+             .HasOne(b => b.BlockedUser)
+             .WithMany(u => u.Blocks)
+             .HasForeignKey(b => b.BlockedUserId);
         }
     }
 }
