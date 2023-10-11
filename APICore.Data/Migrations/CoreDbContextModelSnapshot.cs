@@ -22,32 +22,6 @@ namespace APICore.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("APICore.Data.Entities.BlockedUsers", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<DateTime>("BlockDateTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("BlockedUserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("BlockerUserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BlockedUserId");
-
-                    b.HasIndex("BlockerUserId");
-
-                    b.ToTable("BlockedUsers");
-                });
-
             modelBuilder.Entity("APICore.Data.Entities.Log", b =>
                 {
                     b.Property<int>("Id")
@@ -122,6 +96,10 @@ namespace APICore.Data.Migrations
 
                     b.Property<DateTime>("BirthDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("BlockedUsers")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -250,25 +228,6 @@ namespace APICore.Data.Migrations
                     b.ToTable("UserToken");
                 });
 
-            modelBuilder.Entity("APICore.Data.Entities.BlockedUsers", b =>
-                {
-                    b.HasOne("APICore.Data.Entities.User", "BlockedUser")
-                        .WithMany("Blocks")
-                        .HasForeignKey("BlockedUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("APICore.Data.Entities.User", "BlockerUser")
-                        .WithMany()
-                        .HasForeignKey("BlockerUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("BlockedUser");
-
-                    b.Navigation("BlockerUser");
-                });
-
             modelBuilder.Entity("APICore.Data.Entities.UserToken", b =>
                 {
                     b.HasOne("APICore.Data.Entities.User", "User")
@@ -282,8 +241,6 @@ namespace APICore.Data.Migrations
 
             modelBuilder.Entity("APICore.Data.Entities.User", b =>
                 {
-                    b.Navigation("Blocks");
-
                     b.Navigation("UserTokens");
                 });
 #pragma warning restore 612, 618

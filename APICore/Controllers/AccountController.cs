@@ -189,7 +189,7 @@ namespace APICore.Controllers
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest forgotPassRequest)
         {
             var newPass = await _accountService.ForgotPasswordAsync(forgotPassRequest);
-            return Ok(newPass);
+            return Ok(new ApiOkResponse(newPass));
         }
     }
 }
