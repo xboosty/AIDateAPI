@@ -66,6 +66,7 @@ public class Startup
         services.AddTransient<ILogService, LogService>();
         services.AddTransient<IStorageService, StorageService>();
         services.AddTransient<ITwilioService, TwilioService>();
+        services.AddTransient<IBlockService, BlockService>();
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline

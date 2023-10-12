@@ -227,6 +227,14 @@
       "es-ES": "Actualización de Token no encontrado."
     }
   },
+  {
+    "Key": "404004",
+    "LocalizedValue": {
+      "en-US": "Blocked user not found.",
+      "es-ES": "Usuario bloqueado no encontrado."
+    }
+  },
+
   //RequestTimeout
   {
     "Key": "408",

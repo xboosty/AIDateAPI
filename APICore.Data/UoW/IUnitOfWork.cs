@@ -11,6 +11,7 @@ namespace APICore.Data.UoW
         IGenericRepository<UserToken> UserTokenRepository { get; set; }
         IGenericRepository<Setting> SettingRepository { get; set; }
         IGenericRepository<Log> LogRepository { get; set; }
+
         Task<int> CommitAsync();
     }
 }
