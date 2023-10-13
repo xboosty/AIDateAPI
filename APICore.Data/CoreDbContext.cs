@@ -62,13 +62,17 @@ namespace APICore.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<BlockedUsers>()
+                .HasKey(b => new {b.BlockerUserId, b.BlockedUserId});
+
+            modelBuilder.Entity<BlockedUsers>()
                             .HasOne(b => b.BlockerUser)
-                            .WithMany()
-                            .HasForeignKey(b => b.BlockerUserId);
+                            .WithMany(u => u.Blockers)
+                            .HasForeignKey(b => b.BlockerUserId)
+                            .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<BlockedUsers>()
              .HasOne(b => b.BlockedUser)
-             .WithMany(u => u.Blocks)
+             .WithMany(u => u.Blockeds)
              .HasForeignKey(b => b.BlockedUserId);
         }
     }

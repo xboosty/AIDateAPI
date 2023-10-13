@@ -24,26 +24,21 @@ namespace APICore.Data.Migrations
 
             modelBuilder.Entity("APICore.Data.Entities.BlockedUsers", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("BlockerUserId")
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<DateTime>("BlockDateTime")
-                        .HasColumnType("datetime2");
 
                     b.Property<int>("BlockedUserId")
                         .HasColumnType("int");
 
-                    b.Property<int>("BlockerUserId")
+                    b.Property<DateTime>("BlockDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Id")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("BlockerUserId", "BlockedUserId");
 
                     b.HasIndex("BlockedUserId");
-
-                    b.HasIndex("BlockerUserId");
 
                     b.ToTable("BlockedUsers");
                 });
@@ -253,15 +248,15 @@ namespace APICore.Data.Migrations
             modelBuilder.Entity("APICore.Data.Entities.BlockedUsers", b =>
                 {
                     b.HasOne("APICore.Data.Entities.User", "BlockedUser")
-                        .WithMany("Blocks")
+                        .WithMany("Blockeds")
                         .HasForeignKey("BlockedUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("APICore.Data.Entities.User", "BlockerUser")
-                        .WithMany()
+                        .WithMany("Blockers")
                         .HasForeignKey("BlockerUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("BlockedUser");
@@ -282,7 +277,9 @@ namespace APICore.Data.Migrations
 
             modelBuilder.Entity("APICore.Data.Entities.User", b =>
                 {
-                    b.Navigation("Blocks");
+                    b.Navigation("Blockeds");
+
+                    b.Navigation("Blockers");
 
                     b.Navigation("UserTokens");
                 });

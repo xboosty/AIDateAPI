@@ -30,7 +30,7 @@ namespace APICore.Data.Entities
         public string? Avatar { get; set; }
         public string? AvatarMimeType { get; set; }
         public virtual ICollection<UserToken> UserTokens { get; set; }
-        public ICollection<BlockedUsers> Blocks { get; set; } // Bloqueos realizados por este usuario.
-
+        public ICollection<BlockedUsers> Blockeds { get; set; } // Users blocked by me
+        public ICollection<BlockedUsers> Blockers { get; set; } // Users blocking me
     }
 }
