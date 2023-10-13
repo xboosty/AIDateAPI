@@ -583,18 +583,11 @@ namespace APICore.Services.Impls
 
         public async Task<bool> ForgotPasswordAsync(ForgotPasswordRequest forgotPassRequest)
         {
-            if (ValidatePhone(forgotPassRequest.Phone.Number, forgotPassRequest.Phone.Code) == null) throw new PhoneNotValidBadRequestException(_localizer);
-            var user = await _uow.UserRepository.FindBy(u => u.PhoneCode == forgotPassRequest.Phone.Code && u.Phone == forgotPassRequest.Phone.Number && u.Status == StatusEnum.ACTIVE).FirstOrDefaultAsync();
-            if (user == null)
-            {
-                throw new UserNotFoundException(_localizer);
-            }
-            else
-            {
-                var verificationCheck = await _twilioService.SendVerificationCodeAsync(user.PhoneCode + user.Phone);
-                if (!verificationCheck) throw new SendSMSBadRequestException(_localizer);
-                return true;
-            }
+            if (!ValidateEmail(forgotPassRequest.Email)) throw new EmailNotValidBadRequestException(_localizer);
+            var user = await _uow.UserRepository.FindBy(u => u.Email.Equals(forgotPassRequest.Email) && u.Status == StatusEnum.ACTIVE).FirstOrDefaultAsync() ?? throw new UserNotFoundException(_localizer);
+            var verificationCheck = await _twilioService.SendVerificationCodeAsync(user.PhoneCode + user.Phone);
+            if (!verificationCheck) throw new SendSMSBadRequestException(_localizer);
+            return true;
         }
     }
 }
