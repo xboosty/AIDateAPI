@@ -10,6 +10,6 @@ namespace APICore.Common.DTO.Request
     public class ForgotPasswordRequest
     {
         [Required]
-        public PhoneDTO Phone { get; set; }
+        public string Email { get; set; }
     }
 }

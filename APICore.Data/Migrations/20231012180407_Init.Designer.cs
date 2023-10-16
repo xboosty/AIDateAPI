@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace APICore.Data.Migrations
 {
     [DbContext(typeof(CoreDbContext))]
-    [Migration("20230920140828_UpdateUserEntity")]
-    partial class UpdateUserEntity
+    [Migration("20231012180407_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -24,6 +24,27 @@ namespace APICore.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
+            modelBuilder.Entity("APICore.Data.Entities.BlockedUsers", b =>
+                {
+                    b.Property<int>("BlockerUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("BlockedUserId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("BlockDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.HasKey("BlockerUserId", "BlockedUserId");
+
+                    b.HasIndex("BlockedUserId");
+
+                    b.ToTable("BlockedUsers");
+                });
+
             modelBuilder.Entity("APICore.Data.Entities.Log", b =>
                 {
                     b.Property<int>("Id")
@@ -33,12 +54,14 @@ namespace APICore.Data.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("App")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("EventType")
@@ -48,6 +71,7 @@ namespace APICore.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Module")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("UserId")
@@ -67,9 +91,11 @@ namespace APICore.Data.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("Key")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Value")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -101,15 +127,18 @@ namespace APICore.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FullName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Gender")
                         .HasColumnType("int");
 
                     b.Property<string>("Identity")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsEmailVerified")
@@ -128,18 +157,25 @@ namespace APICore.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Password")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Phone")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneCode")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SexualOrientation")
+                        .HasColumnType("int");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.Property<string>("VerificationCode")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -156,36 +192,46 @@ namespace APICore.Data.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("AccessToken")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset>("AccessTokenExpiresDateTime")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("ClientName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ClientType")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ClientVersion")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DeviceBrand")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DeviceModel")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("OS")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("OSPlatform")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("OSVersion")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RefreshToken")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset>("RefreshTokenExpiresDateTime")
@@ -201,6 +247,25 @@ namespace APICore.Data.Migrations
                     b.ToTable("UserToken");
                 });
 
+            modelBuilder.Entity("APICore.Data.Entities.BlockedUsers", b =>
+                {
+                    b.HasOne("APICore.Data.Entities.User", "BlockedUser")
+                        .WithMany("Blockeds")
+                        .HasForeignKey("BlockedUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("APICore.Data.Entities.User", "BlockerUser")
+                        .WithMany("Blockers")
+                        .HasForeignKey("BlockerUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("BlockedUser");
+
+                    b.Navigation("BlockerUser");
+                });
+
             modelBuilder.Entity("APICore.Data.Entities.UserToken", b =>
                 {
                     b.HasOne("APICore.Data.Entities.User", "User")
@@ -214,6 +279,10 @@ namespace APICore.Data.Migrations
 
             modelBuilder.Entity("APICore.Data.Entities.User", b =>
                 {
+                    b.Navigation("Blockeds");
+
+                    b.Navigation("Blockers");
+
                     b.Navigation("UserTokens");
                 });
 #pragma warning restore 612, 618

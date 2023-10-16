@@ -9,7 +9,7 @@ namespace APICore.Data.Entities
         public User()
         {
             UserTokens = new HashSet<UserToken>();
-            }
+        }
 
         public string Identity { get; set; }
         public bool IsEmailVerified { get; set; }
@@ -30,6 +30,7 @@ namespace APICore.Data.Entities
         public string? Avatar { get; set; }
         public string? AvatarMimeType { get; set; }
         public virtual ICollection<UserToken> UserTokens { get; set; }
-        public string BlockedUsers { get; set; }
+        public ICollection<BlockedUsers> Blockeds { get; set; } // Users blocked by me
+        public ICollection<BlockedUsers> Blockers { get; set; } // Users blocking me
     }
 }

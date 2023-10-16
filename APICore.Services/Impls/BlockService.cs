@@ -3,7 +3,6 @@ using APICore.Data.UoW;
 using APICore.Services.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
-using Newtonsoft.Json;
 
 namespace APICore.Services.Impls
 {
@@ -23,22 +22,21 @@ namespace APICore.Services.Impls
         {
             var blockerUser = await _uow.UserRepository.FirstOrDefaultAsync(u => u.Id == blockerUserId) ?? throw new UserNotFoundException(_localizer);
             var blockedUser = await _uow.UserRepository.FirstOrDefaultAsync(u => u.Id == blockedUserId) ?? throw new UserNotFoundException(_localizer);
-            var blockedList = (!string.IsNullOrEmpty(blockerUser.BlockedUsers)) ? JsonConvert.DeserializeObject<List<BlockedUsers>>(blockerUser.BlockedUsers) : new List<BlockedUsers>();
+            var existingBlock = await _uow.BlockedUsersRepository.FirstOrDefaultAsync(b => b.BlockerUserId == blockerUserId && b.BlockedUserId == blockedUserId);
 
-            if (blockedList.Any(u => u.BlockedUserId == blockedUserId))
+            if (existingBlock != null)
             {
                 return true;
             }
 
             var newBlock = new BlockedUsers
             {
+                BlockerUserId = blockerUserId,
                 BlockedUserId = blockedUserId,
                 BlockDateTime = DateTime.UtcNow
             };
 
-            blockedList.Add(newBlock);
-            blockerUser.BlockedUsers = JsonConvert.SerializeObject(blockedList);
-            await _uow.UserRepository.UpdateAsync(blockerUser, blockerUserId);
+            await _uow.BlockedUsersRepository.AddAsync(newBlock);
             await _uow.CommitAsync();
 
             return true;
@@ -46,17 +44,10 @@ namespace APICore.Services.Impls
 
         public async Task<bool> UnblockUserAsync(int blockerUserId, int blockedUserId)
         {
-            var blockerUser = await _uow.UserRepository.FirstOrDefaultAsync(u => u.Id == blockerUserId) ?? throw new UserNotFoundException(_localizer);
-            var blockedList = (!string.IsNullOrEmpty(blockerUser.BlockedUsers))? JsonConvert.DeserializeObject<List<BlockedUsers>>(blockerUser.BlockedUsers): new List<BlockedUsers>();
+            var existingBlock = await _uow.BlockedUsersRepository.FirstOrDefaultAsync(b => b.BlockerUserId == blockerUserId && b.BlockedUserId == blockedUserId) ?? throw new BlockedUserNotFoundException(_localizer);
 
-            if (blockedList.Any(b => b.BlockedUserId == blockedUserId))
-            {
-                var blockedUser = blockedList.FirstOrDefault(b => b.BlockedUserId == blockedUserId);
-                blockedList.Remove(blockedUser);
-                blockerUser.BlockedUsers = JsonConvert.SerializeObject(blockedList);
-                await _uow.UserRepository.UpdateAsync(blockerUser, blockerUserId);
-                await _uow.CommitAsync();
-            }
+            _uow.BlockedUsersRepository.Delete(existingBlock);
+            await _uow.CommitAsync();
 
             return true;
         }
@@ -64,12 +55,11 @@ namespace APICore.Services.Impls
         public async Task<List<User>> GetBlockedUserList(int userId)
         {
             var user = await _uow.UserRepository.GetAll()
+                .Include(u => u.Blockeds)
+                .ThenInclude(b => b.BlockedUser)
                 .FirstOrDefaultAsync(u => u.Id == userId) ?? throw new UserNotFoundException(_localizer);
-            var blockedList = (!string.IsNullOrEmpty(user.BlockedUsers))? JsonConvert.DeserializeObject<List<BlockedUsers>>(user.BlockedUsers) : new List<BlockedUsers>();
-            var blockIds = blockedList.Select(b => b.BlockedUserId).ToList();
 
-            return await _uow.UserRepository.GetAll()
-                .Where(u => blockIds.Contains(u.Id)).ToListAsync();
+            return user.Blockeds.Select(b => b.BlockedUser).ToList();
         }
     }
 }
