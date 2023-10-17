@@ -22,6 +22,8 @@ namespace APICore.Services
 
         Task<bool> ChangeUserPasswordAsync(ChangePasswordRequest request, int userId);
 
+        Task<bool> RecoveryUserPasswordAsync(RecoveryPasswordRequest request);
+
         Task<User> GetUserAsync(int userId);
 
         Task ChangeAccountStatusAsync(ChangeAccountStatusRequest changeAccountStatus, int userId);

@@ -88,6 +88,23 @@ namespace APICore.Controllers
         }
 
         /// <summary>
+        /// Recovery user password.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost("recovery-password")]
+        [AllowAnonymous]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ApiResponse), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse), (int)HttpStatusCode.Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse), (int)HttpStatusCode.Forbidden)]
+        public async Task<IActionResult> RecoveryUserPassword([FromBody] RecoveryPasswordRequest request)
+        {
+            var result = await _accountService.RecoveryUserPasswordAsync(request);
+            return Ok(new ApiOkResponse(result));
+        }
+
+        /// <summary>
         /// Refresh token.
         /// </summary>
         /// <param name="refreshToken">
