@@ -112,12 +112,12 @@ namespace APICore.Controllers
         }
 
         /// <summary>
-        /// Change Password. Requires authentication.
+        /// Change Password.
         /// </summary>
         /// <param name="changePassword">
         /// Change password request object. Include old password, new password, and confirm password.
         /// </param>
-        [Authorize]
+        [AllowAnonymous]
         [HttpPost("change-password")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest changePassword)
@@ -178,7 +178,7 @@ namespace APICore.Controllers
         }
 
         /// <summary>
-        /// Forgot password endpoint. The user receive an email with a new password.
+        /// Forgot password endpoint. The user receive an verification code to change the password.
         /// </summary>
         /// <param name="forgotPassRequest"></param>
         /// <returns></returns>
