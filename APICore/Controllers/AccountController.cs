@@ -134,7 +134,7 @@ namespace APICore.Controllers
         /// <param name="changePassword">
         /// Change password request object. Include old password, new password, and confirm password.
         /// </param>
-        [AllowAnonymous]
+        [Authorize]
         [HttpPost("change-password")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest changePassword)
