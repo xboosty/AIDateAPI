@@ -199,7 +199,13 @@ namespace APICore.Services.Impls
 
         public async Task<bool> RecoveryUserPasswordAsync(RecoveryPasswordRequest request)
         {
-            User user = await GetUserByPhoneAsync(request.Phone.Code, request.Phone.Number);
+            User user = new User();
+
+            if (request.Phone != null)
+                user = await GetUserByPhoneAsync(request.Phone.Code, request.Phone.Number) ?? throw new UserNotFoundException(_localizer);
+
+            if (!string.IsNullOrEmpty(request.Email))
+                user = await _uow.UserRepository.FirstOrDefaultAsync(m => m.Email == request.Email) ?? throw new UserNotFoundException(_localizer);
 
             if (user.Status == StatusEnum.INACTIVE) throw new AccountInactiveForbiddenException(_localizer);
 
