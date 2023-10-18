@@ -214,10 +214,9 @@ namespace APICore.Services.Impls
                 throw new SameNewAndOldPasswordBadRequestException(_localizer);
             }
 
-            if (user.VerificationCode != request.twilioCode)
-            {
-                throw new IncorrectVerificationCodeUnauthorizedException(_localizer);
-            }
+            var verification = await _twilioService
+                  .CheckSentVerificationCode(user.PhoneCode + user.Phone, request.twilioCode);
+            if ((bool)!verification.Valid) throw new VerificationCodeDoesntMatchBadrequestException(_localizer);
 
             return await ChangeUserPassword(request, user);
         }
