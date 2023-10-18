@@ -113,14 +113,14 @@
     }
   },
   {
-    "Key": "400016",
+    "Key": "400017",
     "LocalizedValue": {
       "en-US": "Invalid credentials provided",
       "es-ES": "Las credenciales son incorrectas"
     }
   },
   {
-    "Key": "400017",
+    "Key": "400016",
     "LocalizedValue": {
       "en-US": "This sms could not be sent",
       "es-ES": "Este sms no ha podido ser enviado"
