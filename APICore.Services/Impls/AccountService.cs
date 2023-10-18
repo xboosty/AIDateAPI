@@ -201,7 +201,7 @@ namespace APICore.Services.Impls
         {
             User user = new User();
 
-            if (request.Phone != null)
+            if (!string.IsNullOrEmpty(request.Phone.Number))
                 user = await GetUserByPhoneAsync(request.Phone.Code, request.Phone.Number) ?? throw new UserNotFoundException(_localizer);
 
             if (!string.IsNullOrEmpty(request.Email))
