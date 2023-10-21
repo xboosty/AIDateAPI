@@ -1,6 +1,4 @@
 ﻿using APICore.Data.Entities.Enums;
-using System;
-using System.Collections.Generic;
 
 namespace APICore.Data.Entities
 {
@@ -11,6 +9,7 @@ namespace APICore.Data.Entities
             UserTokens = new HashSet<UserToken>();
         }
 
+        public int Id { get; set; }
         public string Identity { get; set; }
         public bool IsEmailVerified { get; set; }
         public bool IsPhoneVerified { get; set; }
@@ -30,7 +29,7 @@ namespace APICore.Data.Entities
         public string? Avatar { get; set; }
         public string? AvatarMimeType { get; set; }
         public virtual ICollection<UserToken> UserTokens { get; set; }
-        public ICollection<BlockedUsers> Blockeds { get; set; } // Users blocked by me
-        public ICollection<BlockedUsers> Blockers { get; set; } // Users blocking me
+        public ICollection<BlockedUsers> Blockeds { get; set; }
+        public ICollection<BlockedUsers> Blockers { get; set; }
     }
 }

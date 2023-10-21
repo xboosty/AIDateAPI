@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace APICore.Data.Migrations
 {
-    public partial class Init : Migration
+    public partial class Int : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -78,14 +78,15 @@ namespace APICore.Data.Migrations
                 name: "BlockedUsers",
                 columns: table => new
                 {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    BlockDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     BlockerUserId = table.Column<int>(type: "int", nullable: false),
-                    BlockedUserId = table.Column<int>(type: "int", nullable: false),
-                    Id = table.Column<int>(type: "int", nullable: false),
-                    BlockDateTime = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    BlockedUserId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_BlockedUsers", x => new { x.BlockerUserId, x.BlockedUserId });
+                    table.PrimaryKey("PK_BlockedUsers", x => x.Id);
                     table.ForeignKey(
                         name: "FK_BlockedUsers_Users_BlockedUserId",
                         column: x => x.BlockedUserId,
@@ -135,6 +136,11 @@ namespace APICore.Data.Migrations
                 name: "IX_BlockedUsers_BlockedUserId",
                 table: "BlockedUsers",
                 column: "BlockedUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BlockedUsers_BlockerUserId",
+                table: "BlockedUsers",
+                column: "BlockerUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserToken_UserId",

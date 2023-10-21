@@ -24,21 +24,26 @@ namespace APICore.Data.Migrations
 
             modelBuilder.Entity("APICore.Data.Entities.BlockedUsers", b =>
                 {
-                    b.Property<int>("BlockerUserId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("BlockedUserId")
-                        .HasColumnType("int");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<DateTime>("BlockDateTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Id")
+                    b.Property<int>("BlockedUserId")
                         .HasColumnType("int");
 
-                    b.HasKey("BlockerUserId", "BlockedUserId");
+                    b.Property<int>("BlockerUserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("BlockedUserId");
+
+                    b.HasIndex("BlockerUserId");
 
                     b.ToTable("BlockedUsers");
                 });
