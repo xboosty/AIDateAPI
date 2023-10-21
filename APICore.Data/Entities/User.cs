@@ -1,6 +1,4 @@
 ﻿using APICore.Data.Entities.Enums;
-using System;
-using System.Collections.Generic;
 
 namespace APICore.Data.Entities
 {
@@ -10,7 +8,7 @@ namespace APICore.Data.Entities
         {
             UserTokens = new HashSet<UserToken>();
         }
-
+        public int Id { get; set; }
         public string Identity { get; set; }
         public bool IsEmailVerified { get; set; }
         public bool IsPhoneVerified { get; set; }

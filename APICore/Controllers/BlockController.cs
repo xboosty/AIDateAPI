@@ -3,12 +3,14 @@ using APICore.Common.DTO.Response;
 using APICore.Services;
 using APICore.Utils;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 
 namespace APICore.Controllers
 {
+    [Authorize]
     [Route("api/block")]
     public class BlockController : Controller
     {
@@ -54,6 +56,5 @@ namespace APICore.Controllers
 
             return Ok(new ApiOkResponse(mappedUserList));
         }
-
     }
 }
