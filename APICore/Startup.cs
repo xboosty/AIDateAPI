@@ -15,6 +15,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
+using FirebaseAdmin.Auth;
 
 namespace APICore;
 
@@ -52,7 +53,8 @@ public class Startup
 
         services.ConfigureHealthChecks(Configuration);
         services.ConfigureDetection();
-
+        services.ConfigureFirebase();
+        
         services.AddHttpContextAccessor();
         services.AddAutoMapper(typeof(Startup));
 

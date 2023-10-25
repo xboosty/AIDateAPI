@@ -33,5 +33,6 @@ namespace APICore.Services
         Task<bool> ForgotPasswordAsync(ForgotPasswordRequest forgotPassRequest);
 
         Task<bool> ValidateVerificationCodeAsync(VerificationCodeRequest request);
+        Task<User> AuthenticateWithFirebaseAsync(string idToken);
     }
 }
