@@ -54,11 +54,12 @@ namespace APICore.Services.Impls
         public async Task<List<User>> GetBlockedUserList(int userId)
         {
             var user = await _uow.UserRepository.GetAll()
-                .Include(u => u.Blockers)
-                .ThenInclude(b => b.BlockedUser)
                 .FirstOrDefaultAsync(u => u.Id == userId) ?? throw new UserNotFoundException(_localizer);
-
-            return user.Blockers.Select(b => b.BlockedUser).ToList();
+            var blockedList = await _uow.BlockedUsersRepository.GetAll()
+                            .Include(b => b.BlockedUser)
+                            .Where(b => b.BlockerUserId == userId)
+                            .Select(b => b.BlockedUser).ToListAsync();
+            return blockedList;
         }
     }
 }

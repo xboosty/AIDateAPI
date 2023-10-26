@@ -31,6 +31,14 @@ namespace APICore.API.Utils
                dBContext.Users.AddRange(userList);
                dBContext.SaveChanges();
             }
+
+if (dBContext.BlockedUsers.Count() == 0)
+            {
+                var usersList = dBContext.Users.ToList();
+                var blockedUsersList = FakeBlockedUsersDataGenerator.GenerateBlockedUsersForUser("jeny20050@gmail.com", 10, usersList);
+                dBContext.AddRange(blockedUsersList);
+                dBContext.SaveChanges();
+            }
 }
 }
 }

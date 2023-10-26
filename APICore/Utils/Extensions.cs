@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using Newtonsoft.Json;
+using System.Security.Claims;
 
 namespace APICore.Utils
 {
@@ -19,5 +20,13 @@ namespace APICore.Utils
 
             return int.Parse(userId);
         }
+
+        public static void AddPagingHeaders(this HttpResponse response, object paginationData)
+        {
+            response.Headers.Add("PagingData", JsonConvert.SerializeObject(paginationData));
+            response.Headers["Access-Control-Expose-Headers"] = "PagingData";
+            response.Headers["Access-Control-Allow-Headers"] = "PagingData";
+        }
+
     }
 }
