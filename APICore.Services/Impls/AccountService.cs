@@ -30,6 +30,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Wangkanai.Detection.Services;
+using FirebaseAdmin.Auth;
 
 namespace APICore.Services.Impls
 {
@@ -41,6 +42,7 @@ namespace APICore.Services.Impls
         private readonly IDetectionService _detectionService;
         private readonly IStorageService _storageService;
         private readonly ITwilioService _twilioService;
+        private readonly FirebaseAuth _firebaseAuth;
 
         public AccountService(IConfiguration configuration, IUnitOfWork uow,
             IStringLocalizer<IAccountService> localizer,
@@ -53,6 +55,7 @@ namespace APICore.Services.Impls
             _detectionService = detectionService ?? throw new ArgumentNullException(nameof(detectionService));
             _storageService = storageService ?? throw new ArgumentNullException(nameof(storageService));
             _twilioService = twilioService ?? throw new ArgumentNullException(nameof(twilioService));
+            _firebaseAuth = FirebaseAuth.DefaultInstance;
         }
 
         public async Task<(User user, string accessToken, string refreshToken)> LoginAsync(LoginRequest loginRequest)
@@ -594,5 +597,32 @@ namespace APICore.Services.Impls
             if (!verificationCheck) throw new SendSMSBadRequestException(_localizer);
             return true;
         }
+
+        public async Task<User> AuthenticateWithFirebaseAsync(string idToken)
+        {
+            var firebaseToken = await _firebaseAuth.VerifyIdTokenAsync(idToken);
+            var email = firebaseToken.Claims["email"];
+            var user = await _uow.UserRepository.FirstOrDefaultAsync(u => u.Email.Equals(email) && u.Status == StatusEnum.ACTIVE);
+
+            if (user == null)
+            {
+                var displayName = firebaseToken.Claims["name"];
+                var photoUrl = firebaseToken.Claims["picture"];
+                var password = new Password().IncludeNumeric().IncludeSpecial().IncludeUppercase().LengthRequired(8).Next();
+                user = new User
+                {
+                    FullName = (string) displayName,
+                    Email = (string) email,
+                    Avatar = (string) photoUrl,
+                    Status = StatusEnum.ACTIVE,
+                    Password = GetSha256Hash(password)
+                };
+                await _uow.UserRepository.AddAsync(user);
+                await _uow.CommitAsync();
+            }
+
+            return user;
+        }
+
     }
 }

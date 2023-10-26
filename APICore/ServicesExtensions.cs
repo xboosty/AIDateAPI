@@ -17,6 +17,8 @@ using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 
 namespace APICore
 {
@@ -121,6 +123,15 @@ namespace APICore
                         .WithExposedHeaders(new string[] { "X-Pagination", "Authorization", "RefreshToken" })
                         );
             });
+        }
+
+        public static void ConfigureFirebase(this IServiceCollection services)
+        {
+            var serviceAccount = FirebaseApp.Create(new AppOptions
+            {
+                Credential = GoogleCredential.FromFile("FirebaseAdminSDK.json"),
+            });
+
         }
 
         public static void ConfigureI18N(this IServiceCollection services)

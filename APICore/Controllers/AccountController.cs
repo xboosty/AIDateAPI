@@ -14,6 +14,7 @@ using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
 
 namespace APICore.Controllers
 {
@@ -208,5 +209,20 @@ namespace APICore.Controllers
             var newPass = await _accountService.ForgotPasswordAsync(forgotPassRequest);
             return Ok(new ApiOkResponse(newPass));
         }
+        /// <summary>
+        /// Firebase authentication endpoint. 
+        /// </summary>
+        /// <param name="idToken"></param>
+        /// <returns></returns>
+        [HttpPost("firebase")]
+        [AllowAnonymous]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public async Task<IActionResult> VerificationAuthenticationFirebase([Required] string idToken)
+        {
+            var user = _accountService.AuthenticateWithFirebaseAsync(idToken);
+            var userResponse = _mapper.Map<UserResponse>(user);
+            return Ok(new ApiOkResponse(userResponse));
+        }
+
     }
 }
