@@ -31,6 +31,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Wangkanai.Detection.Services;
 using FirebaseAdmin.Auth;
+using APICore.Services.Utils;
 
 namespace APICore.Services.Impls
 {
@@ -611,9 +612,9 @@ namespace APICore.Services.Impls
                 var password = new Password().IncludeNumeric().IncludeSpecial().IncludeUppercase().LengthRequired(8).Next();
                 user = new User
                 {
-                    FullName = (string) displayName,
-                    Email = (string) email,
-                    Avatar = (string) photoUrl,
+                    FullName = (string)displayName,
+                    Email = (string)email,
+                    Avatar = (string)photoUrl,
                     Status = StatusEnum.ACTIVE,
                     Password = GetSha256Hash(password)
                 };
@@ -624,5 +625,10 @@ namespace APICore.Services.Impls
             return user;
         }
 
-    }
+public async Task<PaginatedList<User>> GetUserList(int page, int perPage)
+        {
+            var users = _uow.UserRepository.GetAll();
+            return await   PaginatedList<User>.CreateAsync(users, page, perPage);
+        }
+        }
 }

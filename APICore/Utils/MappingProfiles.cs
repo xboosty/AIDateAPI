@@ -13,9 +13,9 @@ namespace APICore.Utils
             CreateMap<User, UserResponse>()
                 .ForMember(d => d.StatusId, opts => opts.MapFrom(source => (int)source.Status))
                 .ForMember(d => d.Status, opts => opts.MapFrom(source => source.Status.ToString()))
-                .ForMember(d => d.GenderId, opts => opts.MapFrom(source => (int)source.Gender))
-                .ForMember(d => d.Gender, opts => opts.MapFrom(source => source.Gender.ToString()))
-                .ForMember(d => d.SexualOrientation, opts => opts.MapFrom(source => source.SexualOrientation.ToString()))
+                .ForMember(d => d.GenderId, opts => opts.MapFrom(source => (source.IsGenderVisible) ? (int)source.Gender : -1))
+                .ForMember(d => d.Gender, opts => opts.MapFrom(source => (source.IsGenderVisible) ? source.Gender.ToString() : ""))
+                .ForMember(d => d.SexualOrientation, opts => opts.MapFrom(source => (source.IsSexualityVisible) ? source.SexualOrientation.ToString() : ""))
                 ;
 
             CreateMap<HealthReportEntry, HealthCheckResponse>()

@@ -214,13 +214,26 @@ namespace APICore.Controllers
         /// </summary>
         /// <param name="idToken"></param>
         /// <returns></returns>
-        [HttpPost("firebase")]
+        [HttpGet("firebase")]
         [AllowAnonymous]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<IActionResult> VerificationAuthenticationFirebase([Required] string idToken)
         {
-            var user = _accountService.AuthenticateWithFirebaseAsync(idToken);
+            var user = await  _accountService.AuthenticateWithFirebaseAsync(idToken);
             var userResponse = _mapper.Map<UserResponse>(user);
+            return Ok(new ApiOkResponse(userResponse));
+        }
+
+        [HttpGet("users-list")]
+        [AllowAnonymous]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetUserList(int? page, int? perPage)
+        {
+            int pag = page ?? 1;
+            int perPag = perPage ?? 10;
+            var users = await _accountService.GetUserList(pag, perPag);
+            var userResponse = _mapper.Map<List<UserResponse>>(users.ToList());
+            Response.AddPagingHeaders(users.GetPaginationData);
             return Ok(new ApiOkResponse(userResponse));
         }
 
