@@ -54,7 +54,8 @@ public class Startup
 
         services.ConfigureHealthChecks(Configuration);
         services.ConfigureDetection();
-
+        services.ConfigureFirebase();
+        
         services.AddHttpContextAccessor();
         services.AddAutoMapper(typeof(Startup));
 
