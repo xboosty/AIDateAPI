@@ -12,6 +12,7 @@ namespace APICore.Data.UoW
         IGenericRepository<Setting> SettingRepository { get; set; }
         IGenericRepository<Log> LogRepository { get; set; }
         IGenericRepository<BlockedUsers> BlockedUsersRepository { get; set; }
+        IGenericRepository<ReportedUsers> ReportedUsersRepository { get; set; }
 
         Task<int> CommitAsync();
     }

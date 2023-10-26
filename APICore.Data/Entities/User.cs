@@ -7,6 +7,10 @@ namespace APICore.Data.Entities
         public User()
         {
             UserTokens = new HashSet<UserToken>();
+            Blockeds = new HashSet<BlockedUsers>();
+            Blockers = new HashSet<BlockedUsers>();
+            Reporteds = new HashSet<ReportedUsers>();
+            Reporters = new HashSet<ReportedUsers>();
         }
 
         public int Id { get; set; }
@@ -31,5 +35,7 @@ namespace APICore.Data.Entities
         public virtual ICollection<UserToken> UserTokens { get; set; }
         public ICollection<BlockedUsers> Blockeds { get; set; }
         public ICollection<BlockedUsers> Blockers { get; set; }
+        public ICollection<ReportedUsers> Reporteds { get; set; }
+        public ICollection<ReportedUsers> Reporters { get; set; }
     }
 }

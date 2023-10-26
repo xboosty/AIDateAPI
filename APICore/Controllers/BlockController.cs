@@ -48,7 +48,7 @@ namespace APICore.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType(typeof(List<UserResponse>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> UnblockUser()
+        public async Task<IActionResult> GetBlockedUserList()
         {
             var userId = this.User.GetUserIdFromToken();
             var blockedUserList = await _blockService.GetBlockedUserList(userId);

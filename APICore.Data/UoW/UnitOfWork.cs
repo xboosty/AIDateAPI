@@ -17,6 +17,7 @@ namespace APICore.Data.UoW
             SettingRepository ??= new GenericRepository<Setting>(_context);
             LogRepository ??= new GenericRepository<Log>(_context);
             BlockedUsersRepository ??= new GenericRepository<BlockedUsers>(_context);
+            ReportedUsersRepository ??= new GenericRepository<ReportedUsers>(_context);
         }
 
         public IGenericRepository<User> UserRepository { get; set; }
@@ -24,6 +25,7 @@ namespace APICore.Data.UoW
         public IGenericRepository<Setting> SettingRepository { get; set; }
         public IGenericRepository<Log> LogRepository { get; set; }
         public IGenericRepository<BlockedUsers> BlockedUsersRepository { get; set; }
+        public IGenericRepository<ReportedUsers> ReportedUsersRepository { get; set; }
 
         public async Task<int> CommitAsync()
         {

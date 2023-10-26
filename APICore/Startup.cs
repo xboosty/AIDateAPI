@@ -15,7 +15,8 @@ using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
-using FirebaseAdmin.Auth;
+using APICore.Data;
+using APICore.API.Utils;
 
 namespace APICore;
 
@@ -72,7 +73,7 @@ public class Startup
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    public async void Configure(IApplicationBuilder app, IWebHostEnvironment env, CoreDbContext dbContext)
     {
         app.UseDetection();
         app.UseCors();
@@ -142,5 +143,7 @@ public class Startup
                     }
             });
         });
+
+        DemoDataGenerator.SeedData(dbContext);
     }
 }
