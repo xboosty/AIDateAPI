@@ -2,6 +2,7 @@
 using APICore.Data.Entities;
 using AutoMapper;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Newtonsoft.Json;
 using System.Net;
 
 namespace APICore.Utils
@@ -16,7 +17,7 @@ namespace APICore.Utils
                 .ForMember(d => d.GenderId, opts => opts.MapFrom(source => (source.IsGenderVisible) ? (int)source.Gender : -1))
                 .ForMember(d => d.Gender, opts => opts.MapFrom(source => (source.IsGenderVisible) ? source.Gender.ToString() : ""))
                 .ForMember(d => d.SexualOrientation, opts => opts.MapFrom(source => (source.IsSexualityVisible) ? source.SexualOrientation.ToString() : ""))
-                ;
+                .ForMember(d => d.Pictures, opts => opts.MapFrom(source =>(string.IsNullOrEmpty(source.Pictures))?new List<string>() :JsonConvert.DeserializeObject<List<string>>(source.Pictures)));
 
             CreateMap<HealthReportEntry, HealthCheckResponse>()
                 .ForMember(d => d.Description, opts => opts.MapFrom(source => source.Description))

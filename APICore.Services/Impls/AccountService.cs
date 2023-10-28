@@ -32,6 +32,9 @@ using System.Threading.Tasks;
 using Wangkanai.Detection.Services;
 using FirebaseAdmin.Auth;
 using APICore.Services.Utils;
+using APICore.Common.DTO.Response;
+using static Bogus.DataSets.Name;
+using Newtonsoft.Json;
 
 namespace APICore.Services.Impls
 {
@@ -630,5 +633,69 @@ public async Task<PaginatedList<User>> GetUserList(int page, int perPage)
             var users = _uow.UserRepository.GetAll();
             return await   PaginatedList<User>.CreateAsync(users, page, perPage);
         }
+
+        public async Task<User> EditProfile(int userId, List<IFormFile> pictures,EditProfileRequest request)
+        {
+            var user = await _uow.UserRepository.FirstOrDefaultAsync(u => u.Id == userId) ?? throw new UserNotFoundException(_localizer);
+            var newPic = await UploadListPictures(pictures);
+
+            user.FullName = request.FullName;
+            user.IsGenderVisible = request.IsGenderVisible;
+            user.IsSexualityVisible = request.IsSexualityVisible;
+            user.Gender = Enum.TryParse<GenderEnum>(request.Gender, true, out GenderEnum gender)? gender :throw new InvalidGenderBadrequestException(_localizer);
+            user.SexualOrientation = Enum.TryParse<SexualOrientationEnum>(request.SexualOrientation, true, out SexualOrientationEnum sexuality)? sexuality : throw new InvalidSexualOrientationBadrequestException(_localizer);
+            if (!string.IsNullOrEmpty(user.Pictures))
+            {
+                var picList = JsonConvert.DeserializeObject<List<string>>(user.Pictures);
+                foreach (var pic in picList)
+                    await _storageService.DeleteFile(pic, "profile");
+            }
+            user.Pictures = JsonConvert.SerializeObject(newPic);
+            await _uow.UserRepository.UpdateAsync(user, user.Id);
+            await _uow.CommitAsync();
+
+            return await Task.FromResult(user);
         }
+
+        private async Task<List<string>> UploadListPictures(List<IFormFile> files)
+        {
+            List<string> namesList = new List<string>();
+foreach (var file in files)
+            {
+                if (file == null)
+                {
+                    throw new FileNullBadRequestException(_localizer);
+                }
+
+                if (file.Length == 0)
+                {
+                    throw new FileNullBadRequestException(_localizer);
+                }
+
+                var maxFileSizeInMBAllowed = _configuration.GetSection("S3")["MaxFileSizeInMegabytesAllowed"];
+
+                if (file.Length > int.Parse(maxFileSizeInMBAllowed) * 1024 * 1024)
+                {
+                    throw new FileInvalidSizeBadRequestException(_localizer);
+                }
+
+                var mime = file.ContentType;
+                if (!mime.Equals("image/png") && !mime.Equals("image/jpg") && !mime.Equals("image/jpeg"))
+                {
+                    throw new FileInvalidTypeBadRequestException(_localizer);
+                }
+            }
+foreach (var file in files)
+            { 
+                string extension = file.ContentType.Split("/")[1];
+                string guid = Guid.NewGuid().ToString() + "." + extension;
+                namesList.Add(guid);
+                var objectS3 = await _storageService.UploadFile(file, guid, "profile");
+            }
+
+            return namesList;
+        }
+
+
+    }
 }

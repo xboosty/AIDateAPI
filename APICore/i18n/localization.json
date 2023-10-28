@@ -154,6 +154,21 @@
       "es-ES": "Su nueva contraseña debe ser diferente de la contraseña utilizada anteriormente"
     }
   },
+  {
+    "Key": "400022",
+    "LocalizedValue": {
+      "en-US": "Invalid gender",
+      "es-ES": "Defina un genero valido."
+    }
+  },
+  {
+    "Key": "400023",
+    "LocalizedValue": {
+      "en-US": "Indefined sexual orientation",
+      "es-ES": "Orientacion sexual no definida"
+    }
+  },
+
   //Unauthorized
   {
     "Key": "401",

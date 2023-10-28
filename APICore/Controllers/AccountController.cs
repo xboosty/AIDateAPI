@@ -237,5 +237,18 @@ namespace APICore.Controllers
             return Ok(new ApiOkResponse(userResponse));
         }
 
+        [Authorize]
+        [HttpPost("edit-profile")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> EditProfile([FromForm]List<IFormFile> pictures, EditProfileRequest request)
+        {
+            var loggedUser = User.GetUserIdFromToken();
+            var result = await _accountService.EditProfile(loggedUser ,pictures, request);
+            var user = _mapper.Map<UserResponse>(result);
+            return Ok(new ApiOkResponse(user));
+        }
+
     }
 }

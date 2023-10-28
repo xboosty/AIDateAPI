@@ -32,6 +32,7 @@ namespace APICore.Data.Entities
         public DateTimeOffset? LastLoggedIn { get; set; }
         public string? Avatar { get; set; }
         public string? AvatarMimeType { get; set; }
+        public string Pictures { get; set; }
         public bool IsGenderVisible { get; set; }
         public bool IsSexualityVisible { get; set; }
         public virtual ICollection<UserToken> UserTokens { get; set; }
