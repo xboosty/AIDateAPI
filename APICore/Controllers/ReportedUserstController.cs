@@ -45,14 +45,14 @@ namespace APICore.Controllers
             return Ok(new ApiOkResponse(result));
         }
 
-        [HttpGet("report-user-list")]
+        [HttpPost("report-user-list")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType(typeof(List<ReportedUserResponse>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetReportedUserList([FromQuery] ReportUsersFilterRequest filter)
+        public async Task<IActionResult> GetReportedUserList([FromBody] ReportUsersFilterRequest filter)
         {
             var reportedUserList = await _reportService.GetReportedUserList(filter);
-            var mappedUserList = _mapper.Map<List<ReportedUsers>>(reportedUserList);
+            var mappedUserList = _mapper.Map<List<ReportedUserResponse>>(reportedUserList);
 
             return Ok(new ApiOkResponse(mappedUserList));
         }

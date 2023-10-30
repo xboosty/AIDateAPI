@@ -39,6 +39,14 @@ if (dBContext.BlockedUsers.Count() == 0)
                 dBContext.AddRange(blockedUsersList);
                 dBContext.SaveChanges();
             }
+
+if (dBContext.ReportedUsers.Count() == 0)
+            {
+                var users = dBContext.Users.ToList();
+                var reportedUsers = ReportedUsersFaker.GenerateReportsByEmail(users, "jeny20050@gmail.com", 10);
+                dBContext.AddRange(reportedUsers);
+                dBContext.SaveChanges();
+            }
 }
 }
 }

@@ -216,12 +216,20 @@ namespace APICore.Controllers
         /// <returns></returns>
         [HttpGet("firebase")]
         [AllowAnonymous]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof((bool, UserResponse)), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ApiResponse), (int)HttpStatusCode.Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> VerificationAuthenticationFirebase([Required] string idToken)
         {
-            var user = await  _accountService.AuthenticateWithFirebaseAsync(idToken);
-            var userResponse = _mapper.Map<UserResponse>(user);
-            return Ok(new ApiOkResponse(userResponse));
+            var result = await  _accountService.AuthenticateWithFirebaseAsync(idToken);
+            var userResponse = _mapper.Map<UserResponse>(result.user);
+            if (result.registered)
+            {
+                HttpContext.Response.Headers["Authorization"] = "Bearer " + result.AccessToken;
+                HttpContext.Response.Headers["RefreshToken"] = result.RefreshToken;
+            }
+            var response = new {Registered = result.registered, User = userResponse };
+            return Ok(new ApiOkResponse(response));
         }
 
         [HttpGet("users-list")]

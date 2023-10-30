@@ -602,30 +602,59 @@ namespace APICore.Services.Impls
             return true;
         }
 
-        public async Task<User> AuthenticateWithFirebaseAsync(string idToken)
+        public async Task<(bool registered,string AccessToken, string RefreshToken, User user)> AuthenticateWithFirebaseAsync(string idToken)
         {
             var firebaseToken = await _firebaseAuth.VerifyIdTokenAsync(idToken);
             var email = firebaseToken.Claims["email"];
-            var user = await _uow.UserRepository.FirstOrDefaultAsync(u => u.Email.Equals(email) && u.Status == StatusEnum.ACTIVE);
+            var user = await _uow.UserRepository.FirstOrDefaultAsync(u => u.Email.Equals(email));
+            bool registered = true;
 
             if (user == null)
             {
                 var displayName = firebaseToken.Claims["name"];
                 var photoUrl = firebaseToken.Claims["picture"];
-                var password = new Password().IncludeNumeric().IncludeSpecial().IncludeUppercase().LengthRequired(8).Next();
                 user = new User
                 {
                     FullName = (string)displayName,
                     Email = (string)email,
                     Avatar = (string)photoUrl,
-                    Status = StatusEnum.ACTIVE,
-                    Password = GetSha256Hash(password)
                 };
-                await _uow.UserRepository.AddAsync(user);
-                await _uow.CommitAsync();
+                registered = false;
+                return (registered, "", "", user);
+                }
+
+            if (user.Status != StatusEnum.ACTIVE)
+            {
+                throw new AccountInactiveForbiddenException(_localizer);
             }
 
-            return user;
+            var dd = GetDeviceDetectorConfigured();
+            var clientInfo = dd.GetClient();
+            var osrInfo = dd.GetOs();
+            var device1 = dd.GetDeviceName();
+            var brand = dd.GetBrandName();
+            var model = dd.GetModel();
+            var claims = GetClaims(user);
+            var token = GetToken(claims);
+            var refreshToken = GetRefreshToken();
+            var t = new UserToken();
+            t.AccessToken = token;
+            t.AccessTokenExpiresDateTime = DateTime.UtcNow.AddHours(int.Parse(_configuration.GetSection("BearerTokens")["AccessTokenExpirationHours"]));
+            t.RefreshToken = refreshToken;
+            t.RefreshTokenExpiresDateTime = DateTime.UtcNow.AddHours(int.Parse(_configuration.GetSection("BearerTokens")["RefreshTokenExpirationHours"]));
+            t.UserId = user.Id;
+            t.DeviceModel = model;
+            t.DeviceBrand = brand;
+            t.OS = osrInfo.Match?.Name;
+            t.OSPlatform = osrInfo.Match?.Platform;
+            t.OSVersion = osrInfo.Match?.Version;
+            t.ClientName = clientInfo.Match?.Name;
+            t.ClientType = clientInfo.Match?.Type;
+            t.ClientVersion = clientInfo.Match?.Version;
+            await _uow.UserTokenRepository.AddAsync(t);
+            await _uow.CommitAsync();
+
+            return (registered,token, refreshToken, user);
         }
 
 public async Task<PaginatedList<User>> GetUserList(int page, int perPage)

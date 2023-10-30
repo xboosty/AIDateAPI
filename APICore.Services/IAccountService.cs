@@ -35,7 +35,7 @@ namespace APICore.Services
         Task<bool> ForgotPasswordAsync(ForgotPasswordRequest forgotPassRequest);
 
         Task<bool> ValidateVerificationCodeAsync(VerificationCodeRequest request);
-        Task<User> AuthenticateWithFirebaseAsync(string idToken);
+        Task<(bool registered, string AccessToken, string RefreshToken, User user)> AuthenticateWithFirebaseAsync(string idToken);
         Task<PaginatedList<User>> GetUserList(int page, int perPage);
         Task<User> EditProfile(int userId, List<IFormFile> pictures, EditProfileRequest request);
     }
