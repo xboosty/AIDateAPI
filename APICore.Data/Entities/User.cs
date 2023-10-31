@@ -29,10 +29,25 @@ namespace APICore.Data.Entities
         public string Phone { get; set; }
         public string Password { get; set; }
         public StatusEnum Status { get; set; }
+        public FrequencyEnum IsSmoker { get; set; }
+        public FrequencyEnum ExerciseFrequency { get; set; }
+        public RelationshipEnum TypeRelationship { get; set; }
+        public ReligionEnum Religions { get; set; }
+        public KindRelationshipEnum KindRelationship { get; set; }
+        public PositionBedEnum PositionBed { get; set; }
+        public DietaryPreferenceEnum DietaryPreference { get; set; }
         public DateTimeOffset? LastLoggedIn { get; set; }
+        public string? HabitsAndGoals { get; set; }
+        public string? HistoryRelationship { get; set; }
+        public string? Pet { get; set; }
+        public string? Hobbies { get; set; }
+public int Height { get; set; }
         public string? Avatar { get; set; }
         public string? AvatarMimeType { get; set; }
-        public string Pictures { get; set; }
+        public string? Pictures { get; set; }
+        public bool HaveChildren { get; set; }
+        public bool IsVaccinated { get; set; }
+        public bool disease { get; set; }
         public bool IsGenderVisible { get; set; }
         public bool IsSexualityVisible { get; set; }
         public virtual ICollection<UserToken> UserTokens { get; set; }

@@ -47,6 +47,7 @@ namespace APICore.Services.Impls
         private readonly IStorageService _storageService;
         private readonly ITwilioService _twilioService;
         private readonly FirebaseAuth _firebaseAuth;
+        private HttpClient _httpClient;
 
         public AccountService(IConfiguration configuration, IUnitOfWork uow,
             IStringLocalizer<IAccountService> localizer,
@@ -60,6 +61,7 @@ namespace APICore.Services.Impls
             _storageService = storageService ?? throw new ArgumentNullException(nameof(storageService));
             _twilioService = twilioService ?? throw new ArgumentNullException(nameof(twilioService));
             _firebaseAuth = FirebaseAuth.DefaultInstance;
+            _httpClient = new HttpClient();
         }
 
         public async Task<(User user, string accessToken, string refreshToken)> LoginAsync(LoginRequest loginRequest)
@@ -330,6 +332,86 @@ namespace APICore.Services.Impls
             await _uow.CommitAsync();
 
             return existingUser;
+        }
+
+        public async Task<(string accessToken, string refreshToken,User user)> SignUpWithFirebaseAsync(SignUpFirebaseRequest suRequest)
+        {
+            if (string.IsNullOrEmpty(suRequest.TokenId) || string.IsNullOrEmpty(suRequest.Phone.Code + suRequest.Phone.Number))
+            {
+                throw new BaseBadRequestException();
+            }
+
+            string password = new Password().IncludeNumeric().IncludeUppercase().IncludeSpecial().IncludeLowercase().LengthRequired(8).Next();
+            User existingUser = null;
+            var firebaseToken = await _firebaseAuth.VerifyIdTokenAsync(suRequest.TokenId);
+            string email = (string) firebaseToken.Claims["email"];
+
+            string displayName = (string) firebaseToken.Claims["name"];
+            string  photoUrl = (string) firebaseToken.Claims["picture"];
+            
+            var userEmail = await _uow.UserRepository.FirstOrDefaultAsync(u => u.Email == email.ToLower() && u.Status == StatusEnum.ACTIVE);
+            if (userEmail != null) throw new EmailInUseBadRequestException(_localizer);
+            string verificationCode = new Password().IncludeNumeric().LengthRequired(6).Next();
+
+            userEmail = await _uow.UserRepository.FirstOrDefaultAsync(u => u.Email == email.ToLower() &&
+                                                                                 (u.PhoneCode != suRequest.Phone.Code || u.Phone != suRequest.Phone.Number));
+            if (userEmail != null) throw new EmailInUseBadRequestException(_localizer);
+
+            //existingUser = await RegisterPhone(suRequest.Phone.Code, suRequest.Phone.Number, false);
+
+            existingUser = new User
+                {
+                    Email = email.ToLower(),
+                    IsEmailVerified = true,
+                    FullName = displayName,
+                    IsPhoneVerified = false,
+                    Phone = suRequest.Phone.Number,
+                    PhoneCode = suRequest.Phone.Code,
+                    VerificationCode = verificationCode,
+                    CreatedCode = DateTime.Now,
+                    Password = GetSha256Hash(password),
+                    CreatedAt = DateTime.UtcNow,
+                    ModifiedAt = DateTime.UtcNow,
+                    Identity = Suid.NewLettersOnlySuid(),
+                    Status = StatusEnum.ACTIVE,
+                    IsGeneratedPassChanged = true,
+                    SexualOrientation = (SexualOrientationEnum)suRequest.SexualOrientation,
+                    Gender = (GenderEnum)suRequest.Gender,
+                    Avatar = photoUrl
+                };
+
+                await _uow.UserRepository.AddAsync(existingUser);
+            await _uow.CommitAsync();
+            var dd = GetDeviceDetectorConfigured();
+            var clientInfo = dd.GetClient();
+            var osrInfo = dd.GetOs();
+            var device1 = dd.GetDeviceName();
+            var brand = dd.GetBrandName();
+            var model = dd.GetModel();
+            var claims = GetClaims(existingUser);
+            var token = GetToken(claims);
+            var refreshToken = GetRefreshToken();
+            var t = new UserToken();
+            t.AccessToken = token;
+            t.AccessTokenExpiresDateTime = DateTime.UtcNow.AddHours(int.Parse(_configuration.GetSection("BearerTokens")["AccessTokenExpirationHours"]));
+            t.RefreshToken = refreshToken;
+            t.RefreshTokenExpiresDateTime = DateTime.UtcNow.AddHours(int.Parse(_configuration.GetSection("BearerTokens")["RefreshTokenExpirationHours"]));
+            t.UserId = existingUser.Id;
+            t.DeviceModel = model;
+            t.DeviceBrand = brand;
+            t.OS = osrInfo.Match?.Name;
+            t.OSPlatform = osrInfo.Match?.Platform;
+            t.OSVersion = osrInfo.Match?.Version;
+            t.ClientName = clientInfo.Match?.Name;
+            t.ClientType = clientInfo.Match?.Type;
+            t.ClientVersion = clientInfo.Match?.Version;
+            await _uow.UserTokenRepository.AddAsync(t);
+            await _uow.CommitAsync();
+
+            return (token, refreshToken, existingUser);
+
+
+            return (token, refreshToken, existingUser);
         }
 
         public async Task<User> RegisterPhone(string phoneCode, string phoneNumber, bool toValidateOldPhone)
@@ -661,6 +743,27 @@ namespace APICore.Services.Impls
         {
             var users = _uow.UserRepository.GetAll();
             return await PaginatedList<User>.CreateAsync(users, page, perPage);
+        }
+
+        public async Task<PaginatedList<UserWithMatch>> GetUserMatches(int userId, int page, int perPage)
+        {
+            var user = await _uow.UserRepository.FirstOrDefaultAsync(u => u.Id == userId) ?? throw new UserNotFoundException(_localizer);
+
+            HttpResponseMessage response = await _httpClient.GetAsync($"/?useremail={user.Email}");
+            response.EnsureSuccessStatusCode();
+            string content = await response.Content.ReadAsStringAsync();
+            var matchesResponse = JsonConvert.DeserializeObject<List<MatchResponse>>(content);
+            var emailMatches = matchesResponse.Select(m => m.Email).ToList();
+
+            var usersWithMatches = _uow.UserRepository.GetAll()
+                .Where(u => emailMatches.Contains(u.Email))
+                .Select(u => new UserWithMatch
+                {
+                    User = u,
+                    Match = matchesResponse.First(m => m.Email == u.Email).Match
+                });
+
+            return await PaginatedList<UserWithMatch>.CreateAsync(usersWithMatches, page, perPage);
         }
 
         public async Task<User> EditProfile(int userId, List<IFormFile> pictures, EditProfileRequest request)

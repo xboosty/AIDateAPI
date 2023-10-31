@@ -1,5 +1,6 @@
 ﻿using APICore.Common.DTO.Response;
 using APICore.Data.Entities;
+using APICore.Services.Utils;
 using AutoMapper;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Newtonsoft.Json;
@@ -17,7 +18,23 @@ namespace APICore.Utils
                 .ForMember(d => d.GenderId, opts => opts.MapFrom(source => (source.IsGenderVisible) ? (int)source.Gender : -1))
                 .ForMember(d => d.Gender, opts => opts.MapFrom(source => (source.IsGenderVisible) ? source.Gender.ToString() : ""))
                 .ForMember(d => d.SexualOrientation, opts => opts.MapFrom(source => (source.IsSexualityVisible) ? source.SexualOrientation.ToString() : ""))
-                .ForMember(d => d.Pictures, opts => opts.MapFrom(source =>(string.IsNullOrEmpty(source.Pictures))?new List<string>() :JsonConvert.DeserializeObject<List<string>>(source.Pictures)));
+                .ForMember(d => d.Pictures, opts => opts.MapFrom(source => (string.IsNullOrEmpty(source.Pictures)) ? new List<string>() : JsonConvert.DeserializeObject<List<string>>(source.Pictures)))
+                .ForMember(d => d.SexualityId, opts => opts.MapFrom(s => (s.IsSexualityVisible)? (int)s.SexualOrientation : -1))
+                .AfterMap<UserPictureAction>();
+
+            CreateMap<User, UserWithMatchResponse>()
+                .ForMember(d => d.StatusId, opts => opts.MapFrom(source => (int)source.Status))
+                .ForMember(d => d.Status, opts => opts.MapFrom(source => source.Status.ToString()))
+                .ForMember(d => d.GenderId, opts => opts.MapFrom(source => (source.IsGenderVisible) ? (int)source.Gender : -1))
+                .ForMember(d => d.Gender, opts => opts.MapFrom(source => (source.IsGenderVisible) ? source.Gender.ToString() : ""))
+                .ForMember(d => d.SexualOrientation, opts => opts.MapFrom(source => (source.IsSexualityVisible) ? source.SexualOrientation.ToString() : ""))
+                .ForMember(d => d.Pictures, opts => opts.MapFrom(source => (string.IsNullOrEmpty(source.Pictures)) ? new List<string>() : JsonConvert.DeserializeObject<List<string>>(source.Pictures)))
+                .ForMember(d => d.SexualityId, opts => opts.MapFrom(s => (s.IsSexualityVisible) ? (int)s.SexualOrientation : -1))
+                .ForMember(d => d.Age, opt => opt.MapFrom(s => (s.BirthDate != null) ? DateTime.Now.Year-s.BirthDate.Year : 0))
+                .ForMember(d => d.ZodiacSymbol, opts => opts.MapFrom(s => (s.BirthDate != null) ? s.BirthDate.GetZodiacSign() : "unknown"))
+                .ForMember(d => d.IsSmoker, opts => opts.MapFrom(s => s.IsSmoker.ToString()))
+                .ForMember(d => d.ExerciseFrequency, opts => opts.MapFrom(s => s.ExerciseFrequency.ToString()));
+
 
             CreateMap<HealthReportEntry, HealthCheckResponse>()
                 .ForMember(d => d.Description, opts => opts.MapFrom(source => source.Description))
