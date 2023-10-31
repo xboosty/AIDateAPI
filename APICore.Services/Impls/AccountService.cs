@@ -577,11 +577,11 @@ namespace APICore.Services.Impls
 
             string extension = file.ContentType.Split("/")[1];
             string guid = Guid.NewGuid().ToString() + "." + extension;
-            var objectS3 = await _storageService.UploadFile(file, guid, "profile");
+            var objectS3 = await _storageService.UploadFile(file, guid, "avatars");
             if (!string.IsNullOrWhiteSpace(user.Avatar))
             {
                 var oldGuid = user.Avatar;
-                await _storageService.DeleteFile(oldGuid, "profile");
+                await _storageService.DeleteFile(oldGuid, "avatars");
             }
 
             user.Avatar = guid;
@@ -602,7 +602,7 @@ namespace APICore.Services.Impls
             return true;
         }
 
-        public async Task<(bool registered,string AccessToken, string RefreshToken, User user)> AuthenticateWithFirebaseAsync(string idToken)
+        public async Task<(bool registered, string AccessToken, string RefreshToken, User user)> AuthenticateWithFirebaseAsync(string idToken)
         {
             var firebaseToken = await _firebaseAuth.VerifyIdTokenAsync(idToken);
             var email = firebaseToken.Claims["email"];
@@ -621,7 +621,7 @@ namespace APICore.Services.Impls
                 };
                 registered = false;
                 return (registered, "", "", user);
-                }
+            }
 
             if (user.Status != StatusEnum.ACTIVE)
             {
@@ -654,16 +654,16 @@ namespace APICore.Services.Impls
             await _uow.UserTokenRepository.AddAsync(t);
             await _uow.CommitAsync();
 
-            return (registered,token, refreshToken, user);
+            return (registered, token, refreshToken, user);
         }
 
-public async Task<PaginatedList<User>> GetUserList(int page, int perPage)
+        public async Task<PaginatedList<User>> GetUserList(int page, int perPage)
         {
             var users = _uow.UserRepository.GetAll();
-            return await   PaginatedList<User>.CreateAsync(users, page, perPage);
+            return await PaginatedList<User>.CreateAsync(users, page, perPage);
         }
 
-        public async Task<User> EditProfile(int userId, List<IFormFile> pictures,EditProfileRequest request)
+        public async Task<User> EditProfile(int userId, List<IFormFile> pictures, EditProfileRequest request)
         {
             var user = await _uow.UserRepository.FirstOrDefaultAsync(u => u.Id == userId) ?? throw new UserNotFoundException(_localizer);
             var newPic = await UploadListPictures(pictures);
@@ -671,13 +671,13 @@ public async Task<PaginatedList<User>> GetUserList(int page, int perPage)
             user.FullName = request.FullName;
             user.IsGenderVisible = request.IsGenderVisible;
             user.IsSexualityVisible = request.IsSexualityVisible;
-            user.Gender = Enum.TryParse<GenderEnum>(request.Gender, true, out GenderEnum gender)? gender :throw new InvalidGenderBadrequestException(_localizer);
-            user.SexualOrientation = Enum.TryParse<SexualOrientationEnum>(request.SexualOrientation, true, out SexualOrientationEnum sexuality)? sexuality : throw new InvalidSexualOrientationBadrequestException(_localizer);
+            user.Gender = Enum.TryParse<GenderEnum>(request.Gender, true, out GenderEnum gender) ? gender : throw new InvalidGenderBadrequestException(_localizer);
+            user.SexualOrientation = Enum.TryParse<SexualOrientationEnum>(request.SexualOrientation, true, out SexualOrientationEnum sexuality) ? sexuality : throw new InvalidSexualOrientationBadrequestException(_localizer);
             if (!string.IsNullOrEmpty(user.Pictures))
             {
                 var picList = JsonConvert.DeserializeObject<List<string>>(user.Pictures);
                 foreach (var pic in picList)
-                    await _storageService.DeleteFile(pic, "profile");
+                    await _storageService.DeleteFile(pic, "avatars");
             }
             user.Pictures = JsonConvert.SerializeObject(newPic);
             await _uow.UserRepository.UpdateAsync(user, user.Id);
@@ -689,7 +689,7 @@ public async Task<PaginatedList<User>> GetUserList(int page, int perPage)
         private async Task<List<string>> UploadListPictures(List<IFormFile> files)
         {
             List<string> namesList = new List<string>();
-foreach (var file in files)
+            foreach (var file in files)
             {
                 if (file == null)
                 {
@@ -714,17 +714,15 @@ foreach (var file in files)
                     throw new FileInvalidTypeBadRequestException(_localizer);
                 }
             }
-foreach (var file in files)
-            { 
+            foreach (var file in files)
+            {
                 string extension = file.ContentType.Split("/")[1];
                 string guid = Guid.NewGuid().ToString() + "." + extension;
                 namesList.Add(guid);
-                var objectS3 = await _storageService.UploadFile(file, guid, "profile");
+                var objectS3 = await _storageService.UploadFile(file, guid, "avatars");
             }
 
             return namesList;
         }
-
-
     }
 }

@@ -31,11 +31,13 @@ namespace APICore.Services.Impls
 
         public async Task<PutObjectResponse> UploadFile(IFormFile file, string guid, string folderName)
         {
-            var bucketName = _configuration.GetSection("S3")["BucketAidateDocuments"] + $"/{folderName}";
+            var bucketName = _configuration.GetSection("S3")["BucketAidateDocuments"];
+            var key = $"{folderName}/{guid}";
+
             var putRequest = new PutObjectRequest()
             {
                 BucketName = bucketName,
-                Key = guid,
+                Key = key,
                 InputStream = file.OpenReadStream(),
                 ContentType = file.ContentType,
             };
@@ -52,10 +54,12 @@ namespace APICore.Services.Impls
 
         public async Task<GetObjectResponse> GetObject(string objectKey, string folderName)
         {
+            var key = $"{folderName}/{objectKey}";
+
             var req = new GetObjectRequest()
             {
-                BucketName = _configuration.GetSection("S3")["BucketAutomedicDocuments"] + $"/{folderName}",
-                Key = objectKey
+                BucketName = _configuration.GetSection("S3")["BucketAidateDocuments"],
+                Key = key
             };
 
             var response = await _amazons3.GetObjectAsync(req);
@@ -64,11 +68,14 @@ namespace APICore.Services.Impls
 
         public async Task<DeleteObjectResponse> DeleteFile(string objectKey, string folderName)
         {
+            var key = $"{folderName}/{objectKey}";
+
             var req = new DeleteObjectRequest()
             {
-                BucketName = _configuration.GetSection("S3")["BucketAutomedicDocuments"] + $"/{folderName}",
-                Key = objectKey
+                BucketName = _configuration.GetSection("S3")["BucketAidateDocuments"],
+                Key = key
             };
+
             var response = await _amazons3.DeleteObjectAsync(req);
             return response;
         }
