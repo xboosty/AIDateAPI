@@ -31,7 +31,7 @@ namespace APICore.Services.Impls
 
         public async Task<PutObjectResponse> UploadFile(IFormFile file, string guid, string folderName)
         {
-            var bucketName = _configuration.GetSection("S3")["BucketAutomedicDocuments"] + $"/{folderName}";
+            var bucketName = _configuration.GetSection("S3")["BucketAidateDocuments"] + $"/{folderName}";
             var putRequest = new PutObjectRequest()
             {
                 BucketName = bucketName,

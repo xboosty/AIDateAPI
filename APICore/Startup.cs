@@ -55,7 +55,7 @@ public class Startup
         services.ConfigureHealthChecks(Configuration);
         services.ConfigureDetection();
         services.ConfigureFirebase();
-        
+
         services.AddHttpContextAccessor();
         services.AddAutoMapper(typeof(Startup));
 
@@ -70,6 +70,7 @@ public class Startup
         services.AddTransient<IStorageService, StorageService>();
         services.AddTransient<ITwilioService, TwilioService>();
         services.AddTransient<IBlockService, BlockService>();
+        services.AddTransient<IReportService, ReportService>();
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline

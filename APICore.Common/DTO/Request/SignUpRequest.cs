@@ -9,7 +9,7 @@ namespace APICore.Common.DTO.Request
         public string FullName { get; set; }
 
         [Required]
-        [MinLength(6)]
+        [MinLength(8)]
         public string Password { get; set; }
 
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]

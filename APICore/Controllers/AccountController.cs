@@ -216,12 +216,20 @@ namespace APICore.Controllers
         /// <returns></returns>
         [HttpGet("firebase")]
         [AllowAnonymous]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof((bool, UserResponse)), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ApiResponse), (int)HttpStatusCode.Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> VerificationAuthenticationFirebase([Required] string idToken)
         {
-            var user = await  _accountService.AuthenticateWithFirebaseAsync(idToken);
-            var userResponse = _mapper.Map<UserResponse>(user);
-            return Ok(new ApiOkResponse(userResponse));
+            var result = await  _accountService.AuthenticateWithFirebaseAsync(idToken);
+            var userResponse = _mapper.Map<UserResponse>(result.user);
+            if (result.registered)
+            {
+                HttpContext.Response.Headers["Authorization"] = "Bearer " + result.AccessToken;
+                HttpContext.Response.Headers["RefreshToken"] = result.RefreshToken;
+            }
+            var response = new {Registered = result.registered, User = userResponse };
+            return Ok(new ApiOkResponse(response));
         }
 
         [HttpGet("users-list")]
@@ -235,6 +243,19 @@ namespace APICore.Controllers
             var userResponse = _mapper.Map<List<UserResponse>>(users.ToList());
             Response.AddPagingHeaders(users.GetPaginationData);
             return Ok(new ApiOkResponse(userResponse));
+        }
+
+        [Authorize]
+        [HttpPost("edit-profile")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> EditProfile([FromForm]List<IFormFile> pictures, EditProfileRequest request)
+        {
+            var loggedUser = User.GetUserIdFromToken();
+            var result = await _accountService.EditProfile(loggedUser ,pictures, request);
+            var user = _mapper.Map<UserResponse>(result);
+            return Ok(new ApiOkResponse(user));
         }
 
     }

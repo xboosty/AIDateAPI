@@ -19,5 +19,6 @@ namespace APICore.Common.DTO.Response
         public string SexualOrientation { get; set; }
         public bool IsGenderVisible { get; set; }
         public bool IsSexualityVisible { get; set; }
+        public List<string> Pictures { get; set; }
     }
 }

@@ -1,9 +1,10 @@
 ﻿using APICore.Common.DTO.Request;
 using APICore.Data.Entities;
 using APICore.Services.Utils;
-using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using APICore.Common.DTO.Response;
+using Microsoft.AspNetCore.Http;
 
 namespace APICore.Services
 {
@@ -34,7 +35,8 @@ namespace APICore.Services
         Task<bool> ForgotPasswordAsync(ForgotPasswordRequest forgotPassRequest);
 
         Task<bool> ValidateVerificationCodeAsync(VerificationCodeRequest request);
-        Task<User> AuthenticateWithFirebaseAsync(string idToken);
+        Task<(bool registered, string AccessToken, string RefreshToken, User user)> AuthenticateWithFirebaseAsync(string idToken);
         Task<PaginatedList<User>> GetUserList(int page, int perPage);
+        Task<User> EditProfile(int userId, List<IFormFile> pictures, EditProfileRequest request);
     }
 }

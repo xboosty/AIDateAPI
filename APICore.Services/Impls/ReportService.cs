@@ -60,7 +60,7 @@ namespace APICore.Services.Impls
             if (!string.IsNullOrEmpty(filter.Coment))
                 reportUsersList = reportUsersList.Where(r => r.Coment.Contains(filter.Coment));
 
-            return reportUsersList.Where(r => r.ReporStatus == (ReportStatusEnum) filter.ReporStatus).ToList();    
+            return reportUsersList.Where(r => r.ReporStatus == (ReportStatusEnum)filter.ReportStatus).ToList();
         }
 
         public async Task<bool> SetReportStatus(int userId, int reportId, int reportStatus)
@@ -71,7 +71,7 @@ namespace APICore.Services.Impls
             if (report != null)
             {
                 report.ReporStatus = (ReportStatusEnum)reportStatus;
-                await _uow.ReportedUsersRepository.UpdateAsync(report,report.Id);
+                await _uow.ReportedUsersRepository.UpdateAsync(report, report.Id);
                 await _uow.CommitAsync();
             }
 
