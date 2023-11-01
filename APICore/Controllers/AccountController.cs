@@ -54,6 +54,19 @@ namespace APICore.Controllers
             var mapped = _mapper.Map<UserResponse>(user);
             return Ok(new ApiOkResponse(mapped));
         }
+        [AllowAnonymous]
+        [HttpPost("firebase-signup")]
+        [ProducesResponseType(typeof(UserResponse), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ApiResponse), (int)HttpStatusCode.Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> FirebaseSignup([FromBody] SignUpFirebaseRequest request)
+        {
+            var result = await _accountService.SignUpWithFirebaseAsync(request);
+            HttpContext.Response.Headers["Authorization"] = "Bearer " + result.accessToken;
+            HttpContext.Response.Headers["RefreshToken"] = result.refreshToken;
+            var user = _mapper.Map<UserResponse>(result.user);
+            return Ok(new ApiOkResponse(user));
+        }
 
         /// <summary>
         /// Login a user.

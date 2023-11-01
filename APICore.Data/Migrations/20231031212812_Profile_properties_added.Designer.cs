@@ -4,6 +4,7 @@ using APICore.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace APICore.Data.Migrations
 {
     [DbContext(typeof(CoreDbContext))]
-    partial class CoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231031212812_Profile_properties_added")]
+    partial class Profile_properties_added
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -180,6 +182,7 @@ namespace APICore.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("HabitsAndGoals")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("HaveChildren")
@@ -189,9 +192,11 @@ namespace APICore.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("HistoryRelationship")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Hobbies")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Identity")
@@ -233,6 +238,7 @@ namespace APICore.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Pet")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Phone")
@@ -244,6 +250,7 @@ namespace APICore.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Pictures")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("PositionBed")

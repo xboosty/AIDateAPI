@@ -13,7 +13,7 @@ namespace APICore.Services
         Task<User> SignUpAsync(SignUpRequest suRequest);
 
         Task<(User user, string accessToken, string refreshToken)> LoginAsync(LoginRequest loginRequest);
-
+        Task<(string accessToken, string refreshToken, User user)> SignUpWithFirebaseAsync(SignUpFirebaseRequest suRequest);
         Task LogoutAsync(string accessToken, int userId);
 
         Task<ClaimsPrincipal> GetPrincipalFromExpiredTokenAsync(string token);
@@ -37,6 +37,7 @@ namespace APICore.Services
         Task<bool> ValidateVerificationCodeAsync(VerificationCodeRequest request);
         Task<(bool registered, string AccessToken, string RefreshToken, User user)> AuthenticateWithFirebaseAsync(string idToken);
         Task<PaginatedList<User>> GetUserList(int page, int perPage);
+        Task<PaginatedList<UserWithMatch>> GetUserMatches(int userId, int page, int perPage);
         Task<User> EditProfile(int userId, List<IFormFile> pictures, EditProfileRequest request);
     }
 }
