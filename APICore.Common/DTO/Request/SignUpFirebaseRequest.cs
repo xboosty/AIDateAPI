@@ -7,6 +7,8 @@ namespace APICore.Common.DTO.Request
     {
         [Required]
         public string TokenId { get; set; }
+        [Required]
+        public string FullName { get; set; }
 
         [Required]
         public DateTime Birthday { get; set; }
