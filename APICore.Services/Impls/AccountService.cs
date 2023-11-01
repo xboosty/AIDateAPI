@@ -363,7 +363,7 @@ namespace APICore.Services.Impls
                 {
                     Email = email.ToLower(),
                     IsEmailVerified = true,
-                    FullName = displayName,
+                    FullName = suRequest.FullName,
                     IsPhoneVerified = false,
                     Phone = suRequest.Phone.Number,
                     PhoneCode = suRequest.Phone.Code,
