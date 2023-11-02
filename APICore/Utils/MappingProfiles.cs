@@ -33,7 +33,16 @@ namespace APICore.Utils
                 .ForMember(d => d.Age, opt => opt.MapFrom(s => (s.BirthDate != null) ? DateTime.Now.Year-s.BirthDate.Year : 0))
                 .ForMember(d => d.ZodiacSymbol, opts => opts.MapFrom(s => (s.BirthDate != null) ? s.BirthDate.GetZodiacSign() : "unknown"))
                 .ForMember(d => d.IsSmoker, opts => opts.MapFrom(s => s.IsSmoker.ToString()))
-                .ForMember(d => d.ExerciseFrequency, opts => opts.MapFrom(s => s.ExerciseFrequency.ToString()));
+                .ForMember(d => d.ExerciseFrequency, opts => opts.MapFrom(s => s.ExerciseFrequency.ToString()))
+                .ForMember(d => d.DietaryPreference, opts => opts.MapFrom(s => s.DietaryPreference.ToString()))
+                .ForMember(d => d.Religions, opts => opts.MapFrom(s => s.Religions.ToString()))
+                .ForMember(d => d.TypeRelationship, opts => opts.MapFrom(s => s.TypeRelationship.ToString()))
+                .ForMember(d => d.KindRelationship, opts => opts.MapFrom(s => s.KindRelationship.ToString()))
+                .ForMember(d => d.PositionBed, opts => opts.MapFrom(s => s.PositionBed.ToString()))
+.ForMember(d => d.Hobbies, opts => opts.MapFrom(s => (s.Hobbies != null) ? JsonConvert.DeserializeObject<List<string>>(s.Hobbies) :new List<string>()))
+.ForMember(d => d.HistoryRelationship, opts => opts.MapFrom(s => (!string.IsNullOrEmpty(s.HistoryRelationship)) ? s.HistoryRelationship : ""))
+.ForMember(d => d.HabitsAndGoals, opts => opts.MapFrom(s => (!string.IsNullOrEmpty(s.HabitsAndGoals)) ? s.HabitsAndGoals : ""))
+.ForMember(d => d.Pet, opts => opts.MapFrom(s => (!string.IsNullOrEmpty(s.Pet)) ? s.Pet : ""));
 
 
             CreateMap<HealthReportEntry, HealthCheckResponse>()

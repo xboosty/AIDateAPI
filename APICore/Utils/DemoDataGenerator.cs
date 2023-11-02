@@ -28,11 +28,11 @@ namespace APICore.API.Utils
             var userList = FakeUserDataGenerator.GenerateFakeUsers(100);
             if (dBContext.Users.Count() == 0)
             {
-               dBContext.Users.AddRange(userList);
-               dBContext.SaveChanges();
+                dBContext.Users.AddRange(userList);
+                dBContext.SaveChanges();
             }
 
-if (dBContext.BlockedUsers.Count() == 0)
+            if (dBContext.BlockedUsers.Count() == 0)
             {
                 var usersList = dBContext.Users.ToList();
                 var blockedUsersList = FakeBlockedUsersDataGenerator.GenerateBlockedUsersForUser("jeny20050@gmail.com", 10, usersList);
@@ -40,13 +40,13 @@ if (dBContext.BlockedUsers.Count() == 0)
                 dBContext.SaveChanges();
             }
 
-if (dBContext.ReportedUsers.Count() == 0)
+            if (dBContext.ReportedUsers.Count() == 0)
             {
                 var users = dBContext.Users.ToList();
                 var reportedUsers = ReportedUsersFaker.GenerateReportsByEmail(users, "jeny20050@gmail.com", 10);
                 dBContext.AddRange(reportedUsers);
                 dBContext.SaveChanges();
             }
-}
-}
+        }
+    }
 }
