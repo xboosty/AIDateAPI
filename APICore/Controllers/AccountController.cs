@@ -234,25 +234,25 @@ namespace APICore.Controllers
         [ProducesResponseType(typeof(ApiResponse), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> VerificationAuthenticationFirebase([Required] string idToken)
         {
-            var result = await  _accountService.AuthenticateWithFirebaseAsync(idToken);
+            var result = await _accountService.AuthenticateWithFirebaseAsync(idToken);
             var userResponse = _mapper.Map<UserResponse>(result.user);
             if (result.registered)
             {
                 HttpContext.Response.Headers["Authorization"] = "Bearer " + result.AccessToken;
                 HttpContext.Response.Headers["RefreshToken"] = result.RefreshToken;
             }
-            var response = new {Registered = result.registered, User = userResponse };
+            var response = new { Registered = result.registered, User = userResponse };
             return Ok(new ApiOkResponse(response));
         }
 
         [HttpGet("users-list")]
-        [AllowAnonymous]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetUserList(int? page, int? perPage)
         {
+            var userId = User.GetUserIdFromToken();
             int pag = page ?? 1;
             int perPag = perPage ?? 10;
-            var users = await _accountService.GetUserList(pag, perPag);
+            var users = await _accountService.GetUserList(userId, pag, perPag);
             var userResponse = _mapper.Map<List<UserResponse>>(users.ToList());
             Response.AddPagingHeaders(users.GetPaginationData);
             return Ok(new ApiOkResponse(userResponse));
@@ -263,10 +263,10 @@ namespace APICore.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> EditProfile([FromForm]List<IFormFile> pictures, EditProfileRequest request)
+        public async Task<IActionResult> EditProfile([FromForm] List<IFormFile> pictures, EditProfileRequest request)
         {
             var loggedUser = User.GetUserIdFromToken();
-            var result = await _accountService.EditProfile(loggedUser ,pictures, request);
+            var result = await _accountService.EditProfile(loggedUser, pictures, request);
             var user = _mapper.Map<UserResponse>(result);
             return Ok(new ApiOkResponse(user));
         }

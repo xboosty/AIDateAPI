@@ -2,6 +2,6 @@
 {
     public enum GenderEnum
     {
-        MALE, FEMALE
+        MALE, FEMALE, NONBINARY
     }
 }

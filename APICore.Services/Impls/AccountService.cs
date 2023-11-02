@@ -739,9 +739,15 @@ namespace APICore.Services.Impls
             return (registered, token, refreshToken, user);
         }
 
-        public async Task<PaginatedList<User>> GetUserList(int page, int perPage)
+        public async Task<PaginatedList<User>> GetUserList(int userId, int page, int perPage)
         {
-            var users = _uow.UserRepository.GetAll();
+            var user = await _uow.UserRepository.FirstOrDefaultAsync(u => u.Id == userId) ?? throw new UserNotFoundException(_localizer);
+            var blockedIds = await _uow.BlockedUsersRepository.GetAll()
+                .Where(b => b.BlockerUserId == userId)
+                .Select(b => b.BlockedUserId).ToListAsync();
+
+            var users = _uow.UserRepository.GetAll()
+                .Where(u => !blockedIds.Contains(u.Id));
             return await PaginatedList<User>.CreateAsync(users, page, perPage);
         }
 
