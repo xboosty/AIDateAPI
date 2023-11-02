@@ -3,7 +3,9 @@ using APICore.Data.Entities;
 using APICore.Data.Entities.Enums;
 using APICore.Data.UoW;
 using APICore.Services.Exceptions;
+using APICore.Services.Utils;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
 
 namespace APICore.Services.Impls
@@ -12,11 +14,15 @@ namespace APICore.Services.Impls
     {
         private readonly IUnitOfWork _uow;
         private readonly IStringLocalizer<IReportService> _localizer;
+        private readonly IEmailService _emailService;
+        private readonly IConfiguration _configuration;
 
-        public ReportService(IUnitOfWork uow, IStringLocalizer<IReportService> localizer)
+        public ReportService(IUnitOfWork uow, IStringLocalizer<IReportService> localizer, IEmailService emailService, IConfiguration configuration)
         {
             _uow = uow ?? throw new ArgumentNullException(nameof(uow));
             _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
+            _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
         public async Task<bool> ReportUserAsync(int reporterUserId, int reportedUserId, string coment)
@@ -41,7 +47,13 @@ namespace APICore.Services.Impls
 
             await _uow.ReportedUsersRepository.AddAsync(newReport);
             await _uow.CommitAsync();
-
+            var reportUserList = await _uow.ReportedUsersRepository.GetAll()
+                .Include(r => r.ReporterUser)
+                .Include(r => r.ReportedUser)
+                            .Where(r => r.ReportedUserId == reportedUserId && r.ReporStatus == ReportStatusEnum.PENDING).ToListAsync();
+            var reportsThreshold = int.Parse(_configuration.GetSection("ReportSystemSettings")["ReportsThreshold"]); 
+            if (reportUserList.Count() >= reportsThreshold)
+                await SendUserReportedNotification(reportUserList);
             return true;
         }
 
@@ -77,5 +89,12 @@ namespace APICore.Services.Impls
 
             return true;
         }
+        private async Task SendUserReportedNotification(List<ReportedUsers> reportList)
+        {
+            var msg = HtmlContentGenerator.GenerateReportHtml(reportList);
+            var to = _configuration.GetSection("ReportSystemSettings")["AdministratorEmail"];
+            await _emailService.SendEmailResponseAsync("Report notification", msg, "david.naranjo@ntsprint.com");
+        }
+
     }
 }

@@ -28,7 +28,7 @@ namespace APICore.Common.DTO.Response
         public string HabitsAndGoals { get; set; }
         public string HistoryRelationship { get; set; }
         public string Pet { get; set; }
-        public string Hobbies { get; set; }
+        public List<string> Hobbies { get; set; }
         public int Height { get; set; }
 
         public bool HaveChildren { get; set; }

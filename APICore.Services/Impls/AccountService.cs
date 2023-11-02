@@ -357,7 +357,7 @@ namespace APICore.Services.Impls
                                                                                  (u.PhoneCode != suRequest.Phone.Code || u.Phone != suRequest.Phone.Number));
             if (userEmail != null) throw new EmailInUseBadRequestException(_localizer);
 
-            //existingUser = await RegisterPhone(suRequest.Phone.Code, suRequest.Phone.Number, false);
+            existingUser = await RegisterPhone(suRequest.Phone.Code, suRequest.Phone.Number, false);
 
             existingUser = new User
                 {
