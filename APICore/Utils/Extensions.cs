@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 
 namespace APICore.Utils
 {
@@ -28,5 +29,6 @@ namespace APICore.Utils
             response.Headers["Access-Control-Allow-Headers"] = "PagingData";
         }
 
+        
     }
 }

@@ -91,7 +91,15 @@ namespace APICore.Services.Impls
         }
         private async Task SendUserReportedNotification(List<ReportedUsers> reportList)
         {
-            var msg = HtmlContentGenerator.GenerateReportHtml(reportList);
+            var reportedName = reportList.FirstOrDefault();
+            var templateTokens = new Dictionary<string, string>();
+            if (reportedName != null)
+                templateTokens.Add("{{ReportedUserName}}", reportedName.ReportedUser.FullName);
+
+            var rowReport = HtmlContentGenerator.GenerateRowToReport(reportList);
+            templateTokens.Add("{{ReportersTableRows}}", rowReport);
+            var msg = HtmlContentGenerator.FillTemplateFromFile("Templates/ReportedUserTemplate.html", templateTokens);
+            
             var to = _configuration.GetSection("ReportSystemSettings")["AdministratorEmail"];
             await _emailService.SendEmailResponseAsync("Report notification", msg, "david.naranjo@ntsprint.com");
         }
