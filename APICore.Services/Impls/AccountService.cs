@@ -782,6 +782,7 @@ namespace APICore.Services.Impls
             user.IsSexualityVisible = request.IsSexualityVisible;
             user.Gender = Enum.TryParse<GenderEnum>(request.Gender, true, out GenderEnum gender) ? gender : throw new InvalidGenderBadrequestException(_localizer);
             user.SexualOrientation = Enum.TryParse<SexualOrientationEnum>(request.SexualOrientation, true, out SexualOrientationEnum sexuality) ? sexuality : throw new InvalidSexualOrientationBadrequestException(_localizer);
+            user.BirthDate = request.BirthDate;
             if (!string.IsNullOrEmpty(user.Pictures))
             {
                 var picList = JsonConvert.DeserializeObject<List<string>>(user.Pictures);
