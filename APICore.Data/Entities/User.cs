@@ -55,5 +55,7 @@ public int Height { get; set; }
         public ICollection<BlockedUsers> Blockers { get; set; }
         public ICollection<ReportedUsers> Reporteds { get; set; }
         public ICollection<ReportedUsers> Reporters { get; set; }
+        public ICollection<ChatUsers>  MessagesTo { get; set; }
+        public ICollection<ChatUsers> MessagesFrom { get; set; }
     }
 }

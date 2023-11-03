@@ -19,6 +19,7 @@ namespace APICore.Data
         public DbSet<UserToken> UserToken { get; set; }
         public DbSet<BlockedUsers> BlockedUsers { get; set; }
         public DbSet<ReportedUsers> ReportedUsers { get; set; }
+        public DbSet<ChatUsers> ChatUsers { get; set; }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
@@ -83,6 +84,18 @@ namespace APICore.Data
                             .HasOne(b => b.ReportedUser)
                             .WithMany(u => u.Reporteds)
                             .HasForeignKey(b => b.ReportedUserId);
+
+            modelBuilder.Entity<ChatUsers>()
+                            .HasOne(c => c.From)
+                            .WithMany(u => u.MessagesFrom)
+                            .HasForeignKey(c => c.FromId)
+                            .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ChatUsers>()
+                            .HasOne(c => c.To)
+                            .WithMany(u => u.MessagesTo)
+                            .HasForeignKey(c => c.ToId);
+
 
         }
     }
