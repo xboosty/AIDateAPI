@@ -263,10 +263,10 @@ namespace APICore.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> EditProfile([FromForm] List<IFormFile> pictures, EditProfileRequest request)
+        public async Task<IActionResult> EditProfile([FromForm] List<IFormFile> files, EditProfileRequest request)
         {
             var loggedUser = User.GetUserIdFromToken();
-            var result = await _accountService.EditProfile(loggedUser, pictures, request);
+            var result = await _accountService.EditProfile(loggedUser, files, request);
             var user = _mapper.Map<UserResponse>(result);
             return Ok(new ApiOkResponse(user));
         }
