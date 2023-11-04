@@ -47,7 +47,7 @@ namespace APICore.Services.Impls
             return true;
         }
 
-        public async Task<List<ChatUsers>> GetChatList(int userId)
+        public async Task<List<ChatUsers>> GetChatList(int userId, ChatFilterRequest filter)
         {
             var userFrom = await _uow.UserRepository.FirstOrDefaultAsync(u => u.Id == userId) ?? throw new UserNotFoundException(_localizer);
             var msgList = await _uow.ChatUsersRepository.GetAll()

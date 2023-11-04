@@ -17,6 +17,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using APICore.Data;
 using APICore.API.Utils;
+using APICore.Services.Utils;
 
 namespace APICore;
 
@@ -58,7 +59,7 @@ public class Startup
 
         services.AddHttpContextAccessor();
         services.AddAutoMapper(typeof(Startup));
-
+        services.AddSignalR();
         // Adding the Azure blob clients as singletons
         services.AddTransient<IUnitOfWork, UnitOfWork>();
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
@@ -71,6 +72,7 @@ public class Startup
         services.AddTransient<ITwilioService, TwilioService>();
         services.AddTransient<IBlockService, BlockService>();
         services.AddTransient<IReportService, ReportService>();
+        services.AddTransient<IChatService, ChatService>();
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
@@ -134,6 +136,7 @@ public class Startup
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllers();
+            endpoints.MapHub<ChatHub>("/chathub");
             endpoints.MapHealthChecks("/health", new HealthCheckOptions()
             {
                 ResultStatusCodes =
