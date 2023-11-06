@@ -13,6 +13,7 @@ namespace APICore.Data.Entities
             Reporteds = new HashSet<ReportedUsers>();
             Reporters = new HashSet<ReportedUsers>();
             ParticipatedChats = new HashSet<ChatParticipation>();
+            ActiveConnections = new HashSet<UserHubConnection>();
         }
 
         public int Id { get; set; }
@@ -59,5 +60,6 @@ namespace APICore.Data.Entities
         public ICollection<ReportedUsers> Reporteds { get; set; }
         public ICollection<ReportedUsers> Reporters { get; set; }
         public ICollection<ChatParticipation> ParticipatedChats { get; set; }
+        public ICollection<UserHubConnection> ActiveConnections { get; set; }
     }
 }

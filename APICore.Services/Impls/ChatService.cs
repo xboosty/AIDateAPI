@@ -1,4 +1,5 @@
 using APICore.Common.DTO.Request;
+using APICore.Common.DTO.Response;
 using APICore.Data.Entities;
 using APICore.Data.Entities.Enums;
 using APICore.Data.UoW;
@@ -15,7 +16,7 @@ namespace APICore.Services.Impls
     {
         private readonly IUnitOfWork _uow;
         private readonly IStringLocalizer<IChatService> _localizer;
-private readonly IHubContext<ChatHub> _hubContext;
+        private readonly IHubContext<ChatHub> _hubContext;
 
         public ChatService(IUnitOfWork uow, IStringLocalizer<IChatService> localizer, IHubContext<ChatHub> hubContext)
         {
@@ -24,29 +25,41 @@ private readonly IHubContext<ChatHub> _hubContext;
             _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
         }
 
-        public async Task<int> CreateChatAsync(int fromId, int toId,int chatId, string msg)
+        public async Task<int> CreateChatAsync(int fromId, int toId, int chatId, string msg)
         {
-            var userFrom = await _uow.UserRepository.FirstOrDefaultAsync(u => u.Id == fromId) ?? throw new UserNotFoundException(_localizer);
-            var userTo = await _uow.UserRepository.FirstOrDefaultAsync(u => u.Id == toId)  ?? throw new UserNotFoundException(_localizer);
+            var userFrom = await _uow.UserRepository.GetAll()
+                .Include(u => u.ActiveConnections)
+                .FirstOrDefaultAsync(u => u.Id == fromId) ?? throw new UserNotFoundException(_localizer);
+            var userTo = await _uow.UserRepository.GetAll()
+                .Include(u => u.ActiveConnections)
+                .FirstOrDefaultAsync(u => u.Id == toId)  ?? throw new UserNotFoundException(_localizer);
+
             Chat chat = new Chat();
-            Message message = new Message {SenderId = fromId, Content = msg};
+            Message message = new Message { Sender = userFrom, Content = msg, SentDate = DateTime.Now, Status = MessageStatusEnum.SEND};
             if (chatId == 0)
             {
                 chat = new Chat();
                 chat.Messages.Add(message);
-                chat.Participants.Add(new ChatParticipation { UserId = fromId});
-                chat.Participants.Add(new ChatParticipation { UserId = toId});
+                chat.Participants.Add(new ChatParticipation { UserId = fromId });
+                chat.Participants.Add(new ChatParticipation { UserId = toId });
                 await _uow.ChatRepository.AddAsync(chat);
                 await _uow.CommitAsync();
+                var connectionIds = userFrom.ActiveConnections.Select(c => c.ConnectionId).Union(userTo.ActiveConnections.Select(c => c.ConnectionId)).ToList();
+                await UpdateChat(connectionIds, message);
                 return chat.Id;
             }
 
             chat = await _uow.ChatRepository.GetAll()
                             .Include(c => c.Messages)
+                            .Include(c => c.Participants)
+                            .ThenInclude(c => c.User)
+                            .ThenInclude(u => u.ActiveConnections)
                             .FirstOrDefaultAsync(c => c.Id == chatId);
             chat.Messages.Add(message);
             await _uow.ChatRepository.UpdateAsync(chat, chatId);
             await _uow.CommitAsync();
+            var idConnections = chat.Participants.SelectMany(p => p.User.ActiveConnections.Select(c => c.ConnectionId)).ToList();
+            await UpdateChat(idConnections, message);
 
             return chat.Id;
         }
@@ -83,19 +96,29 @@ private readonly IHubContext<ChatHub> _hubContext;
             var messagesList = _uow.MessageRepository.GetAll()
                             .Where(message => message.ChatId == chatId);
 
-            return await  PaginatedList<Message>.CreateAsync(messagesList, page, perPage);
+            return await PaginatedList<Message>.CreateAsync(messagesList, page, perPage);
         }
 
         public async Task<bool> SetMessageStatus(int userId, int msgId, int status)
         {
             var userFrom = await _uow.UserRepository.FirstOrDefaultAsync(u => u.Id == userId) ?? throw new UserNotFoundException(_localizer);
             var message = await _uow.MessageRepository.FirstOrDefaultAsync(m => m.Id == msgId && m.SenderId == userId) ?? throw new MessageNotFoundException(_localizer);
-message.Status =(MessageStatusEnum) status;
+            message.Status =(MessageStatusEnum)status;
             await _uow.MessageRepository.UpdateAsync(message, msgId);
             await _uow.CommitAsync();
 
             return true; ;
         }
+        private async Task UpdateChat(List<string> connections, Message msg)
+        {
+            var response = new
+            {
+                ChatId = msg.ChatId,
+                Message = msg.Content,
+                sender = msg.Sender.FullName
+            };
 
+            await _hubContext.Clients.Clients(connections).SendAsync("UpdateChat", response);
+        }
     }
 }

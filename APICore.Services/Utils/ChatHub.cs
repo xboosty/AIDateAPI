@@ -2,6 +2,7 @@
 using APICore.Data.UoW;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using System.Security.Claims;
 
@@ -37,8 +38,29 @@ public ChatHub(IUnitOfWork uow)
             if (userIdClaim != null)
             {
                 int userId = int.Parse(userIdClaim.Value);
-                await _uow.HubConnectionRepository.AddAsync(new Data.Entities.UserHubConnection { UserId = userId, ConnectionId = connectionId });
-                await _uow.CommitAsync();
+
+                var _user = await _uow.UserRepository.GetAll()
+                    .Include(u => u.ActiveConnections)
+                    .Include(u => u.ParticipatedChats)
+                    .ThenInclude(p => p.User)
+                    .ThenInclude(u => u.ActiveConnections)
+                    .FirstOrDefaultAsync(u => u.Id == userId);
+                if (_user.ActiveConnections.Count() == 0)
+                {
+                    var connectionIds = _user.ParticipatedChats.SelectMany(p => p.User.ActiveConnections.Select(c => c.ConnectionId)).ToList();
+                    await Clients.Clients(connectionIds).SendAsync("UpdateStatus", userId, _user.ChatStatus.ToString());
+ _user.ActiveConnections.Add(new Data.Entities.UserHubConnection {ConnectionId = connectionId});
+                    _user.ChatStatus = Data.Entities.Enums.ChatStatusEnum.ONLINE;
+                    await _uow.UserRepository.UpdateAsync(_user, userId);
+                    await _uow.CommitAsync();
+                }
+                else
+                {
+                    _user.ActiveConnections.Add(new Data.Entities.UserHubConnection { ConnectionId = connectionId });
+                    await _uow.UserRepository.UpdateAsync(_user, userId);
+                    await _uow.CommitAsync();
+                }
+
             }
 
         }
@@ -53,10 +75,22 @@ public ChatHub(IUnitOfWork uow)
             {
                 int userId = int.Parse(userIdClaim.Value);
                 var connection = await _uow.HubConnectionRepository.FirstOrDefaultAsync(c => c.ConnectionId.Equals(connectionId) && c.UserId == userId);
+                var _user = await _uow.UserRepository.GetAll()
+                    .Include(u => u.ActiveConnections)
+                    .Include(u => u.ParticipatedChats)
+                    .ThenInclude(p => p.User)
+                    .ThenInclude(u => u.ActiveConnections)
+                    .FirstOrDefaultAsync(u => u.Id == userId);
+                
                 if (connection != null)
                 {
-                    _uow.HubConnectionRepository.Delete(connection);
+                    _user.ActiveConnections.Remove(connection); await _uow.CommitAsync();
+                    if (_user.ActiveConnections.Count() == 0)
+                        _user.ChatStatus = Data.Entities.Enums.ChatStatusEnum.OFFLINE;
+                    await _uow.UserRepository.UpdateAsync(_user, userId);
                     await _uow.CommitAsync();
+                    var connectionIds =  _user.ParticipatedChats.SelectMany(p => p.User.ActiveConnections.Select(c => c.ConnectionId)).ToList();
+                    await Clients.Clients(connectionIds).SendAsync("UpdateStatus", userId, _user.ChatStatus.ToString());
                         }
             }
 
