@@ -18,7 +18,10 @@ namespace APICore.Data.UoW
             LogRepository ??= new GenericRepository<Log>(_context);
             BlockedUsersRepository ??= new GenericRepository<BlockedUsers>(_context);
             ReportedUsersRepository ??= new GenericRepository<ReportedUsers>(_context);
-            ChatUsersRepository ??= new GenericRepository<ChatUsers>(_context);
+            MessageRepository ??= new GenericRepository<Message>(context);
+            ChatRepository ??= new GenericRepository<Chat>(context);
+            ChatParticipationRepository ??= new GenericRepository<ChatParticipation>(context);
+            HubConnectionRepository ??= new GenericRepository<UserHubConnection>(_context);
         }
 
         public IGenericRepository<User> UserRepository { get; set; }
@@ -27,7 +30,10 @@ namespace APICore.Data.UoW
         public IGenericRepository<Log> LogRepository { get; set; }
         public IGenericRepository<BlockedUsers> BlockedUsersRepository { get; set; }
         public IGenericRepository<ReportedUsers> ReportedUsersRepository { get; set; }
-        public IGenericRepository<ChatUsers> ChatUsersRepository { get; set; }
+        public IGenericRepository<Message> MessageRepository { get; set; }
+        public IGenericRepository<Chat> ChatRepository { get; set; }
+        public IGenericRepository<ChatParticipation> ChatParticipationRepository { get; set; }
+        public IGenericRepository<UserHubConnection> HubConnectionRepository { get; set; }
 
         public async Task<int> CommitAsync()
         {

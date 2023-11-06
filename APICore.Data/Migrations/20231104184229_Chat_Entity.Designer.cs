@@ -4,6 +4,7 @@ using APICore.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace APICore.Data.Migrations
 {
     [DbContext(typeof(CoreDbContext))]
-    partial class CoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231104184229_Chat_Entity")]
+    partial class Chat_Entity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -46,45 +48,6 @@ namespace APICore.Data.Migrations
                     b.HasIndex("BlockerUserId");
 
                     b.ToTable("BlockedUsers");
-                });
-
-            modelBuilder.Entity("APICore.Data.Entities.Chat", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("chats");
-                });
-
-            modelBuilder.Entity("APICore.Data.Entities.ChatParticipation", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<int>("ChatId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ChatId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("chatParticipations");
                 });
 
             modelBuilder.Entity("APICore.Data.Entities.ChatUsers", b =>
@@ -157,36 +120,6 @@ namespace APICore.Data.Migrations
                     b.ToTable("Log");
                 });
 
-            modelBuilder.Entity("APICore.Data.Entities.Message", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<int>("ChatId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("SenderId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("SentDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ChatId");
-
-                    b.HasIndex("SenderId");
-
-                    b.ToTable("messages");
-                });
-
             modelBuilder.Entity("APICore.Data.Entities.ReportedUsers", b =>
                 {
                     b.Property<int>("Id")
@@ -257,9 +190,6 @@ namespace APICore.Data.Migrations
 
                     b.Property<DateTime>("BirthDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("ChatStatus")
-                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -483,25 +413,6 @@ namespace APICore.Data.Migrations
                     b.Navigation("BlockerUser");
                 });
 
-            modelBuilder.Entity("APICore.Data.Entities.ChatParticipation", b =>
-                {
-                    b.HasOne("APICore.Data.Entities.Chat", "Chat")
-                        .WithMany("Participants")
-                        .HasForeignKey("ChatId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("APICore.Data.Entities.User", "User")
-                        .WithMany("ParticipatedChats")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Chat");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("APICore.Data.Entities.ChatUsers", b =>
                 {
                     b.HasOne("APICore.Data.Entities.User", "From")
@@ -513,31 +424,12 @@ namespace APICore.Data.Migrations
                     b.HasOne("APICore.Data.Entities.User", "To")
                         .WithMany("MessagesTo")
                         .HasForeignKey("ToId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("From");
 
                     b.Navigation("To");
-                });
-
-            modelBuilder.Entity("APICore.Data.Entities.Message", b =>
-                {
-                    b.HasOne("APICore.Data.Entities.Chat", "Chat")
-                        .WithMany("Messages")
-                        .HasForeignKey("ChatId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("APICore.Data.Entities.User", "Sender")
-                        .WithMany()
-                        .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Chat");
-
-                    b.Navigation("Sender");
                 });
 
             modelBuilder.Entity("APICore.Data.Entities.ReportedUsers", b =>
@@ -581,13 +473,6 @@ namespace APICore.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("APICore.Data.Entities.Chat", b =>
-                {
-                    b.Navigation("Messages");
-
-                    b.Navigation("Participants");
-                });
-
             modelBuilder.Entity("APICore.Data.Entities.User", b =>
                 {
                     b.Navigation("Blockeds");
@@ -597,8 +482,6 @@ namespace APICore.Data.Migrations
                     b.Navigation("MessagesFrom");
 
                     b.Navigation("MessagesTo");
-
-                    b.Navigation("ParticipatedChats");
 
                     b.Navigation("Reporteds");
 

@@ -3,6 +3,7 @@ using APICore.Common.DTO.Request;
 using APICore.Common.DTO.Response;
 using APICore.Data.Entities;
 using APICore.Services;
+using APICore.Services.Impls;
 using APICore.Utils;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -28,24 +29,49 @@ namespace APICore.Controllers
         [HttpPost("send-message")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> CreateMessage([Required] int toId, string msg)
+        public async Task<IActionResult> CreateMessage([Required] int toId, int chatId,string msg)
         {
             var fromId = this.User.GetUserIdFromToken();
-            var result = await _chatService.CreateChatAsync(fromId, toId, msg);
+            var result = await _chatService.CreateChatAsync(fromId, toId, chatId ,msg);
             return Ok(new ApiOkResponse(result));
         }
 
-        [HttpPost("message-list")]
+        [HttpGet("message-list")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        [ProducesResponseType(typeof(List<MessageResponse>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetMessageList([FromBody] ChatFilterRequest filter)
+        [ProducesResponseType(typeof(List<int>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetChatList()
         {
             var userId = User.GetUserIdFromToken();
-            var messageList = await _chatService.GetChatList(userId, filter);
-            var mappedMessageList = _mapper.Map<List<MessageResponse>>(messageList);
+            var chatList = await _chatService.GetChatList(userId);
+            var chatResponse = _mapper.Map<List<ChatResponse>>(chatList);
 
-            return Ok(new ApiOkResponse(mappedMessageList));
+            return Ok(new ApiOkResponse(chatResponse));
         }
+
+        [HttpDelete("delete-message")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<IActionResult> DeleteMessage([Required] int messageId)
+        {
+            var userId = this.User.GetUserIdFromToken();
+            var result = await _chatService.DeleteMessage(userId, messageId);
+            return Ok(new ApiOkResponse(result));
+        }
+
+        [HttpGet("get-messages-list")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<MessageResponse>) ,(int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetMessagesList([Required] int chatId,int? page, int? perPage)
+        {
+            var userId = User.GetUserIdFromToken();
+            int pag = page ?? 1;
+            int perPag = perPage ?? 10;
+            var messages = await _chatService.GetMessageList(userId, chatId, pag, perPag);
+            var messageResponse = _mapper.Map<List<MessageResponse>>(messages.ToList());
+            Response.AddPagingHeaders(messages.GetPaginationData);
+            return Ok(new ApiOkResponse(messageResponse));
+        }
+
     }
 }

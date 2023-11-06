@@ -1,4 +1,5 @@
-﻿using APICore.Data.Entities.Enums;
+﻿using APICore.Data.Entities;
+using APICore.Data.Entities.Enums;
 
 namespace APICore.Data.Entities
 {
@@ -11,6 +12,7 @@ namespace APICore.Data.Entities
             Blockers = new HashSet<BlockedUsers>();
             Reporteds = new HashSet<ReportedUsers>();
             Reporters = new HashSet<ReportedUsers>();
+            ParticipatedChats = new HashSet<ChatParticipation>();
         }
 
         public int Id { get; set; }
@@ -24,6 +26,7 @@ namespace APICore.Data.Entities
         public string FullName { get; set; }
         public GenderEnum Gender { get; set; }
         public SexualOrientationEnum SexualOrientation { get; set; }
+        public ChatStatusEnum ChatStatus { get; set; }
         public string Email { get; set; }
         public string PhoneCode { get; set; }
         public string Phone { get; set; }
@@ -41,7 +44,7 @@ namespace APICore.Data.Entities
         public string? HistoryRelationship { get; set; }
         public string? Pet { get; set; }
         public string? Hobbies { get; set; }
-public int Height { get; set; }
+        public int Height { get; set; }
         public string? Avatar { get; set; }
         public string? AvatarMimeType { get; set; }
         public string? Pictures { get; set; }
@@ -55,7 +58,6 @@ public int Height { get; set; }
         public ICollection<BlockedUsers> Blockers { get; set; }
         public ICollection<ReportedUsers> Reporteds { get; set; }
         public ICollection<ReportedUsers> Reporters { get; set; }
-        public ICollection<ChatUsers>  MessagesTo { get; set; }
-        public ICollection<ChatUsers> MessagesFrom { get; set; }
+        public ICollection<ChatParticipation> ParticipatedChats { get; set; }
     }
 }
