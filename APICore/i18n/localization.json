@@ -87,8 +87,8 @@
   {
     "Key": "400012",
     "LocalizedValue": {
-      "en-US": "The phone is already in use",
-      "es-ES": "El telefono esta siendo usado"
+      "en-US": "Invalid phone number.",
+      "es-ES": "Numero de telefono invalido."
     }
   },
   {
