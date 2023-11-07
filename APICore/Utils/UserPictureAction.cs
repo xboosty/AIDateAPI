@@ -23,6 +23,7 @@ namespace APICore.Utils
                 {
                     destination.Pictures[i] = s3BaseUrl + destination.Pictures[i];
                 }
+                destination.Avatar =s3BaseUrl + destination.Avatar;
             }
         }
     }
