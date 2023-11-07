@@ -29,10 +29,10 @@ namespace APICore.Controllers
         [HttpPost("send-message")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> CreateMessage([Required] int toId, int chatId,string msg)
+        public async Task<IActionResult> CreateMessage([Required] int toId, int chatId, string msg)
         {
             var fromId = this.User.GetUserIdFromToken();
-            var result = await _chatService.CreateChatAsync(fromId, toId, chatId ,msg);
+            var result = await _chatService.CreateChatAsync(fromId, toId, chatId, msg);
             return Ok(new ApiOkResponse(result));
         }
 
@@ -61,8 +61,8 @@ namespace APICore.Controllers
 
         [HttpGet("get-messages-list")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(List<MessageResponse>) ,(int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetMessagesList([Required] int chatId,int? page, int? perPage)
+        [ProducesResponseType(typeof(List<MessageResponse>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetMessagesList([Required] int chatId, int? page, int? perPage)
         {
             var userId = User.GetUserIdFromToken();
             int pag = page ?? 1;
@@ -71,6 +71,19 @@ namespace APICore.Controllers
             var messageResponse = _mapper.Map<List<MessageResponse>>(messages.ToList());
             Response.AddPagingHeaders(messages.GetPaginationData);
             return Ok(new ApiOkResponse(messageResponse));
+        }
+        [HttpGet("users-list")]
+        [ProducesResponseType(typeof(List<UserResponse>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<IActionResult> GetUserList(string name, int? page, int? perPage)
+        {
+            var userId = User.GetUserIdFromToken();
+            int pag = page ?? 1;
+            int perPag = perPage ?? 10;
+            var users = await _chatService.GetUserList(userId, name, pag, perPag);
+            var userResponse = _mapper.Map<List<UserResponse>>(users.ToList());
+            Response.AddPagingHeaders(users.GetPaginationData);
+            return Ok(new ApiOkResponse(userResponse));
         }
 
     }

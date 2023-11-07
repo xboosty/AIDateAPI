@@ -109,6 +109,22 @@ namespace APICore.Services.Impls
 
             return true; ;
         }
+
+        public async Task<PaginatedList<User>> GetUserList(int userId,string name, int page, int perPage)
+        {
+            var user = await _uow.UserRepository.FirstOrDefaultAsync(u => u.Id == userId) ?? throw new UserNotFoundException(_localizer);
+            var blockedIds = await _uow.BlockedUsersRepository.GetAll()
+                .Where(b => b.BlockerUserId == userId)
+                .Select(b => b.BlockedUserId).ToListAsync();
+
+            var users = _uow.UserRepository.GetAll()
+                .Where(u => !blockedIds.Contains(u.Id));
+            if (!string.IsNullOrEmpty(name))
+                users = users.Where(u => u.FullName.Contains(name)).OrderBy(u => u.FullName);
+
+            return await PaginatedList<User>.CreateAsync(users, page, perPage);
+        }
+
         private async Task UpdateChat(List<string> connections, Message msg)
         {
             var response = new

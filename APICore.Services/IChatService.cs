@@ -11,5 +11,6 @@ namespace APICore.Services
         Task<bool> SetMessageStatus(int userId, int msgId, int status);
         Task<bool> DeleteMessage(int userId, int msgId);
         Task<PaginatedList<Message>> GetMessageList(int userId, int chatId, int page, int perPage);
+        Task<PaginatedList<User>> GetUserList(int userId, string name, int page, int perPage);
     }
 }
