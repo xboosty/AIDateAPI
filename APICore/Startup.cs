@@ -60,6 +60,7 @@ public class Startup
         services.AddHttpContextAccessor();
         services.AddAutoMapper(typeof(Startup));
         services.AddSignalR();
+        services.Configure<StripeOptions>(opt => opt.SecretKey = Configuration.GetSection("Stripe")["secretKey"]);
         // Adding the Azure blob clients as singletons
         services.AddTransient<IUnitOfWork, UnitOfWork>();
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
@@ -73,6 +74,7 @@ public class Startup
         services.AddTransient<IBlockService, BlockService>();
         services.AddTransient<IReportService, ReportService>();
         services.AddTransient<IChatService, ChatService>();
+        services.AddTransient<IStripeService, StripeService>();
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline

@@ -18,7 +18,8 @@ namespace APICore.Utils
                 .ForMember(d => d.Status, opts => opts.MapFrom(source => source.Status.ToString()))
                 .ForMember(d => d.GenderId, opts => opts.MapFrom(source => (source.IsGenderVisible) ? (int)source.Gender : -1))
                 .ForMember(d => d.Gender, opts => opts.MapFrom(source => (source.IsGenderVisible) ? source.Gender.ToString() : ""))
-                .ForMember(d => d.SexualOrientation, opts => opts.MapFrom(source => (source.IsSexualityVisible) ? source.SexualOrientation.ToString() : ""))
+                .ForMember(d => d.SexualityId, opts => opts.MapFrom(source => (source.IsSexualityVisible)? (int)source.SexualOrientation :-1))
+.ForMember(d => d.SexualOrientation, opts => opts.MapFrom(source => (source.IsSexualityVisible) ? source.SexualOrientation.ToString() : ""))
                 .ForMember(d => d.Pictures, opts => opts.MapFrom(source => (string.IsNullOrEmpty(source.Pictures)) ? new List<string>() : JsonConvert.DeserializeObject<List<string>>(source.Pictures)))
                 .ForMember(d => d.SexualityId, opts => opts.MapFrom(s => (s.IsSexualityVisible) ? (int)s.SexualOrientation : -1))
                 .AfterMap<UserPictureAction>();

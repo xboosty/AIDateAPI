@@ -10,7 +10,7 @@ using System.Security.Claims;
 
 namespace APICore.Services.Utils
 {
-    //[Authorize]
+    [Authorize]
     public class ChatHub : Hub
     {
         private readonly IUnitOfWork _uow;

@@ -306,7 +306,8 @@ namespace APICore.Services.Impls
                     VerificationCode = verificationCode,
                     CreatedCode = DateTime.UtcNow,
                     IsGeneratedPassChanged = true,
-                    SexualOrientation = (SexualOrientationEnum)suRequest.SexualOrientation
+                    SexualOrientation = (SexualOrientationEnum)suRequest.SexualOrientation,
+                    Gender = (GenderEnum)suRequest.Gender
                 };
 
                 await _uow.UserRepository.AddAsync(existingUser);
@@ -327,14 +328,14 @@ namespace APICore.Services.Impls
                 existingUser.CreatedCode = DateTime.Now;
                 existingUser.IsGeneratedPassChanged = true;
 
-                _uow.UserRepository.Update(existingUser);
+                await _uow.UserRepository.UpdateAsync(existingUser, existingUser.Id);
             }
             await _uow.CommitAsync();
 
             return existingUser;
         }
 
-        public async Task<(string accessToken, string refreshToken,User user)> SignUpWithFirebaseAsync(SignUpFirebaseRequest suRequest)
+        public async Task<(string accessToken, string refreshToken, User user)> SignUpWithFirebaseAsync(SignUpFirebaseRequest suRequest)
         {
             if (string.IsNullOrEmpty(suRequest.TokenId) || string.IsNullOrEmpty(suRequest.Phone.Code + suRequest.Phone.Number))
             {
@@ -344,11 +345,11 @@ namespace APICore.Services.Impls
             string password = new Password().IncludeNumeric().IncludeUppercase().IncludeSpecial().IncludeLowercase().LengthRequired(8).Next();
             User existingUser = null;
             var firebaseToken = await _firebaseAuth.VerifyIdTokenAsync(suRequest.TokenId);
-            string email = (string) firebaseToken.Claims["email"];
+            string email = (string)firebaseToken.Claims["email"];
 
-            string displayName = (string) firebaseToken.Claims["name"];
-            string  photoUrl = (string) firebaseToken.Claims["picture"];
-            
+            string displayName = (string)firebaseToken.Claims["name"];
+            string photoUrl = (string)firebaseToken.Claims["picture"];
+
             var userEmail = await _uow.UserRepository.FirstOrDefaultAsync(u => u.Email == email.ToLower() && u.Status == StatusEnum.ACTIVE);
             if (userEmail != null) throw new EmailInUseBadRequestException(_localizer);
             string verificationCode = new Password().IncludeNumeric().LengthRequired(6).Next();
@@ -360,27 +361,27 @@ namespace APICore.Services.Impls
             existingUser = await RegisterPhone(suRequest.Phone.Code, suRequest.Phone.Number, false);
 
             existingUser = new User
-                {
-                    Email = email.ToLower(),
-                    IsEmailVerified = true,
-                    FullName = suRequest.FullName,
-                    IsPhoneVerified = false,
-                    Phone = suRequest.Phone.Number,
-                    PhoneCode = suRequest.Phone.Code,
-                    VerificationCode = verificationCode,
-                    CreatedCode = DateTime.Now,
-                    Password = GetSha256Hash(password),
-                    CreatedAt = DateTime.UtcNow,
-                    ModifiedAt = DateTime.UtcNow,
-                    Identity = Suid.NewLettersOnlySuid(),
-                    Status = StatusEnum.ACTIVE,
-                    IsGeneratedPassChanged = true,
-                    SexualOrientation = (SexualOrientationEnum)suRequest.SexualOrientation,
-                    Gender = (GenderEnum)suRequest.Gender,
-                    Avatar = photoUrl
-                };
+            {
+                Email = email.ToLower(),
+                IsEmailVerified = true,
+                FullName = suRequest.FullName,
+                IsPhoneVerified = false,
+                Phone = suRequest.Phone.Number,
+                PhoneCode = suRequest.Phone.Code,
+                VerificationCode = verificationCode,
+                CreatedCode = DateTime.Now,
+                Password = GetSha256Hash(password),
+                CreatedAt = DateTime.UtcNow,
+                ModifiedAt = DateTime.UtcNow,
+                Identity = Suid.NewLettersOnlySuid(),
+                Status = StatusEnum.ACTIVE,
+                IsGeneratedPassChanged = true,
+                SexualOrientation = (SexualOrientationEnum)suRequest.SexualOrientation,
+                Gender = (GenderEnum)suRequest.Gender,
+                Avatar = photoUrl
+            };
 
-                await _uow.UserRepository.AddAsync(existingUser);
+            await _uow.UserRepository.AddAsync(existingUser);
             await _uow.CommitAsync();
             var dd = GetDeviceDetectorConfigured();
             var clientInfo = dd.GetClient();
@@ -780,8 +781,9 @@ namespace APICore.Services.Impls
             user.FullName = request.FullName;
             user.IsGenderVisible = request.IsGenderVisible;
             user.IsSexualityVisible = request.IsSexualityVisible;
-            user.Gender = Enum.TryParse<GenderEnum>(request.Gender, true, out GenderEnum gender) ? gender : throw new InvalidGenderBadrequestException(_localizer);
-            user.SexualOrientation = Enum.TryParse<SexualOrientationEnum>(request.SexualOrientation, true, out SexualOrientationEnum sexuality) ? sexuality : throw new InvalidSexualOrientationBadrequestException(_localizer);
+            user.Gender = (GenderEnum)request.GenderId;
+            user.SexualOrientation =(SexualOrientationEnum)request.SexualOrientationId; 
+            user.BirthDate = request.BirthDate;
             if (!string.IsNullOrEmpty(user.Pictures))
             {
                 var picList = JsonConvert.DeserializeObject<List<string>>(user.Pictures);
@@ -789,10 +791,11 @@ namespace APICore.Services.Impls
                     await _storageService.DeleteFile(pic, "avatars");
             }
             user.Pictures = JsonConvert.SerializeObject(newPic);
+            user.Avatar = (newPic.Count > 0) ? newPic[0] : "";
             await _uow.UserRepository.UpdateAsync(user, user.Id);
             await _uow.CommitAsync();
 
-            return await Task.FromResult(user);
+            return user;
         }
 
         private async Task<List<string>> UploadListPictures(List<IFormFile> files)
