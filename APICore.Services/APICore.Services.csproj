@@ -18,6 +18,7 @@
     <PackageReference Include="PasswordGenerator" Version="2.1.0" />
     <PackageReference Include="rlcx.suid" Version="1.0.1" />
     <PackageReference Include="Sendgrid" Version="9.25.2" />
+    <PackageReference Include="Stripe.net" Version="43.1.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.19.0" />
     <PackageReference Include="Twilio" Version="5.80.1" />
     <PackageReference Include="Wangkanai.Detection" Version="4.0.0" />

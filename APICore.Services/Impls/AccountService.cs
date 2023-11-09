@@ -790,7 +790,7 @@ namespace APICore.Services.Impls
                     await _storageService.DeleteFile(pic, "avatars");
             }
             user.Pictures = JsonConvert.SerializeObject(newPic);
-            user.Avatar = newPic[0];
+            user.Avatar = (newPic.Count > 0)? newPic[0] :"";
             await _uow.UserRepository.UpdateAsync(user, user.Id);
             await _uow.CommitAsync();
 
