@@ -17,9 +17,10 @@ namespace APICore.Utils
                 .ForMember(d => d.Status, opts => opts.MapFrom(source => source.Status.ToString()))
                 .ForMember(d => d.GenderId, opts => opts.MapFrom(source => (source.IsGenderVisible) ? (int)source.Gender : -1))
                 .ForMember(d => d.Gender, opts => opts.MapFrom(source => (source.IsGenderVisible) ? source.Gender.ToString() : ""))
-                .ForMember(d => d.SexualOrientation, opts => opts.MapFrom(source => (source.IsSexualityVisible) ? source.SexualOrientation.ToString() : ""))
+                .ForMember(d => d.SexualityId, opts => opts.MapFrom(source => (source.IsSexualityVisible)? (int)source.SexualOrientation :-1))
+.ForMember(d => d.SexualOrientation, opts => opts.MapFrom(source => (source.IsSexualityVisible) ? source.SexualOrientation.ToString() : ""))
                 .ForMember(d => d.Pictures, opts => opts.MapFrom(source => (string.IsNullOrEmpty(source.Pictures)) ? new List<string>() : JsonConvert.DeserializeObject<List<string>>(source.Pictures)))
-                .ForMember(d => d.SexualityId, opts => opts.MapFrom(s => (s.IsSexualityVisible)? (int)s.SexualOrientation : -1))
+                .ForMember(d => d.SexualityId, opts => opts.MapFrom(s => (s.IsSexualityVisible) ? (int)s.SexualOrientation : -1))
                 .AfterMap<UserPictureAction>();
 
             CreateMap<User, UserWithMatchResponse>()
@@ -39,7 +40,7 @@ namespace APICore.Utils
                 .ForMember(d => d.TypeRelationship, opts => opts.MapFrom(s => s.TypeRelationship.ToString()))
                 .ForMember(d => d.KindRelationship, opts => opts.MapFrom(s => s.KindRelationship.ToString()))
                 .ForMember(d => d.PositionBed, opts => opts.MapFrom(s => s.PositionBed.ToString()))
-.ForMember(d => d.Hobbies, opts => opts.MapFrom(s => (s.Hobbies != null) ? JsonConvert.DeserializeObject<List<string>>(s.Hobbies) :new List<string>()))
+.ForMember(d => d.Hobbies, opts => opts.MapFrom(s => (s.Hobbies != null) ? JsonConvert.DeserializeObject<List<string>>(s.Hobbies) : new List<string>()))
 .ForMember(d => d.HistoryRelationship, opts => opts.MapFrom(s => (!string.IsNullOrEmpty(s.HistoryRelationship)) ? s.HistoryRelationship : ""))
 .ForMember(d => d.HabitsAndGoals, opts => opts.MapFrom(s => (!string.IsNullOrEmpty(s.HabitsAndGoals)) ? s.HabitsAndGoals : ""))
 .ForMember(d => d.Pet, opts => opts.MapFrom(s => (!string.IsNullOrEmpty(s.Pet)) ? s.Pet : ""));
