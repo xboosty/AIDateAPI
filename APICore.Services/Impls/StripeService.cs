@@ -74,7 +74,7 @@ public async Task<Subscription> SusbcribeCustomer(string priceId, string custome
                 Customer = customer.Id,
             };
             var paymentMethodService = new PaymentMethodService();
-            var paymentMethod = paymentMethodService.Attach("card", paymentOptions);
+            var paymentMethod = paymentMethodService.Attach("pm_card_visa", paymentOptions);
             var customerOptions = new CustomerUpdateOptions
             {
                 InvoiceSettings = new CustomerInvoiceSettingsOptions

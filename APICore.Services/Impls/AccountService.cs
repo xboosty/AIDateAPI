@@ -306,7 +306,8 @@ namespace APICore.Services.Impls
                     VerificationCode = verificationCode,
                     CreatedCode = DateTime.UtcNow,
                     IsGeneratedPassChanged = true,
-                    SexualOrientation = (SexualOrientationEnum)suRequest.SexualOrientation
+                    SexualOrientation = (SexualOrientationEnum)suRequest.SexualOrientation,
+                    Gender = (GenderEnum)suRequest.Gender
                 };
 
                 await _uow.UserRepository.AddAsync(existingUser);
@@ -327,7 +328,7 @@ namespace APICore.Services.Impls
                 existingUser.CreatedCode = DateTime.Now;
                 existingUser.IsGeneratedPassChanged = true;
 
-                _uow.UserRepository.Update(existingUser);
+                await _uow.UserRepository.UpdateAsync(existingUser, existingUser.Id);
             }
             await _uow.CommitAsync();
 
@@ -780,8 +781,8 @@ namespace APICore.Services.Impls
             user.FullName = request.FullName;
             user.IsGenderVisible = request.IsGenderVisible;
             user.IsSexualityVisible = request.IsSexualityVisible;
-            user.Gender = Enum.TryParse<GenderEnum>(request.Gender, true, out GenderEnum gender) ? gender : throw new InvalidGenderBadrequestException(_localizer);
-            user.SexualOrientation = Enum.TryParse<SexualOrientationEnum>(request.SexualOrientation, true, out SexualOrientationEnum sexuality) ? sexuality : throw new InvalidSexualOrientationBadrequestException(_localizer);
+            user.Gender = (GenderEnum)request.GenderId;
+            user.SexualOrientation =(SexualOrientationEnum)request.SexualOrientationId; 
             user.BirthDate = request.BirthDate;
             if (!string.IsNullOrEmpty(user.Pictures))
             {
@@ -790,7 +791,7 @@ namespace APICore.Services.Impls
                     await _storageService.DeleteFile(pic, "avatars");
             }
             user.Pictures = JsonConvert.SerializeObject(newPic);
-            user.Avatar = (newPic.Count > 0)? newPic[0] :"";
+            user.Avatar = (newPic.Count > 0) ? newPic[0] : "";
             await _uow.UserRepository.UpdateAsync(user, user.Id);
             await _uow.CommitAsync();
 
