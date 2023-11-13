@@ -6,6 +6,7 @@ namespace APICore.Common.DTO.Response
     {
         public DateTime BirthDate { get; set; }
         public string FullName { get; set; }
+        public string LastName { get; set; }
         public string Email { get; set; }
         public int GenderId { get; set; }
         public string Gender { get; set; }
