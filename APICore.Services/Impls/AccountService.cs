@@ -249,7 +249,7 @@ namespace APICore.Services.Impls
             var user = await _uow.UserRepository.FirstOrDefaultAsync(u => u.Id == userId);
             if (user == null) throw new UserNotFoundException(_localizer);
 
-            if (user.Password != GetSha256Hash(request.OldPassword)) throw new UnauthorizedException(_localizer);
+            if (user.Password != GetSha256Hash(request.OldPassword)) throw new InvalidCredentialsBadrequestException(_localizer);
 
             return await ChangeUserPassword(new RecoveryPasswordRequest()
             {
@@ -783,12 +783,13 @@ namespace APICore.Services.Impls
             var newPic = await UploadListPictures(pictures);
 
             user.FullName = request.FullName;
+            user.LastName = request.LastName;
             user.IsGenderVisible = request.IsGenderVisible;
             user.IsSexualityVisible = request.IsSexualityVisible;
             user.Gender = (GenderEnum)request.GenderId;
             user.SexualOrientation =(SexualOrientationEnum)request.SexualOrientationId;
             user.BirthDate = request.BirthDate;
- if (!string.IsNullOrEmpty(request.Email))
+            if (!string.IsNullOrEmpty(request.Email))
                 user.Email = request.Email;
             if (!string.IsNullOrEmpty(user.Pictures))
             {

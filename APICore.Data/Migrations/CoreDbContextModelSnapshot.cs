@@ -225,6 +225,10 @@ namespace APICore.Data.Migrations
                     b.Property<DateTimeOffset?>("LastLoggedIn")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("ModifiedAt")
                         .HasColumnType("datetime2");
 
