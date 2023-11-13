@@ -35,6 +35,7 @@ using APICore.Services.Utils;
 using APICore.Common.DTO.Response;
 using static Bogus.DataSets.Name;
 using Newtonsoft.Json;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace APICore.Services.Impls
 {
@@ -46,13 +47,15 @@ namespace APICore.Services.Impls
         private readonly IDetectionService _detectionService;
         private readonly IStorageService _storageService;
         private readonly ITwilioService _twilioService;
+        private readonly IEmailService _emailService;
         private readonly FirebaseAuth _firebaseAuth;
         private HttpClient _httpClient;
 
         public AccountService(IConfiguration configuration, IUnitOfWork uow,
             IStringLocalizer<IAccountService> localizer,
             IDetectionService detectionService, IStorageService storageService,
-            ITwilioService twilioService)
+            ITwilioService twilioService,
+            IEmailService emailService)
         {
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _uow = uow ?? throw new ArgumentNullException(nameof(uow));
@@ -60,6 +63,7 @@ namespace APICore.Services.Impls
             _detectionService = detectionService ?? throw new ArgumentNullException(nameof(detectionService));
             _storageService = storageService ?? throw new ArgumentNullException(nameof(storageService));
             _twilioService = twilioService ?? throw new ArgumentNullException(nameof(twilioService));
+            _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
             _firebaseAuth = FirebaseAuth.DefaultInstance;
             _httpClient = new HttpClient();
         }
@@ -782,8 +786,10 @@ namespace APICore.Services.Impls
             user.IsGenderVisible = request.IsGenderVisible;
             user.IsSexualityVisible = request.IsSexualityVisible;
             user.Gender = (GenderEnum)request.GenderId;
-            user.SexualOrientation =(SexualOrientationEnum)request.SexualOrientationId; 
+            user.SexualOrientation =(SexualOrientationEnum)request.SexualOrientationId;
             user.BirthDate = request.BirthDate;
+ if (!string.IsNullOrEmpty(request.Email))
+                user.Email = request.Email;
             if (!string.IsNullOrEmpty(user.Pictures))
             {
                 var picList = JsonConvert.DeserializeObject<List<string>>(user.Pictures);
@@ -835,6 +841,21 @@ namespace APICore.Services.Impls
             }
 
             return namesList;
+        }
+
+        public async Task SendVerificationEmailCode(int userId, string newEmail)
+        {
+            var user = await _uow.UserRepository.FirstOrDefaultAsync(u => u.Id == userId) ?? throw new UserNotFoundException(_localizer);
+            var existingUser = await _uow.UserRepository.FirstOrDefaultAsync(u => u.Email == newEmail);
+            if (existingUser is not null) throw new EmailInUseBadRequestException(_localizer);
+            user.VerificationCode =new Password().IncludeNumeric().LengthRequired(6).Next();
+            user.CreatedCode = DateTime.UtcNow;
+            await _uow.UserRepository.UpdateAsync(user, user.Id);
+            await _uow.CommitAsync();
+
+            var subject = "Verification email";
+            var body = user.VerificationCode;
+            await _emailService.SendEmailResponseAsync(subject, body, newEmail);
         }
     }
 }

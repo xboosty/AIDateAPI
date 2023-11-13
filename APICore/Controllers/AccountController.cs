@@ -271,5 +271,13 @@ namespace APICore.Controllers
             return Ok(new ApiOkResponse(user));
         }
 
+        [HttpGet("send-email-code")]
+        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<IActionResult> SendEmailCodeVerification([FromQuery] int id, string email)
+        {
+            await _accountService.SendVerificationEmailCode(id, email);
+            return Ok(new ApiOkResponse(true));
+        }
     }
 }
