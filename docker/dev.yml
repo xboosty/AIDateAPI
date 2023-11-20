@@ -1,0 +1,11 @@
+version: '3'
+services:
+  aidateapi_dev:
+    build:
+      context: ../
+      dockerfile: ./docker/Dockerfile_dev
+    ports:
+      - "5000:5000"
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=aidatedb.ccdlv7vo5t4q.us-east-1.rds.amazonaws.com;Database=AIDateDev;User=sa;Password=Winner2001.
+      - ASPNETCORE_URLS=http://+:5000
