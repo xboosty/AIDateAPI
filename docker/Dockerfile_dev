@@ -1,0 +1,32 @@
+# Etapa de construcción
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build-env
+
+# Establece el directorio de trabajo en /src
+WORKDIR /src
+
+# Copia todo el contenido de los directorios necesarios al directorio de trabajo
+COPY . .
+
+# Restaura las dependencias con un tiempo de espera más largo y deshabilita la telemetría
+RUN DOTNET_CLI_TELEMETRY_OPTOUT=1 DOTNET_CLI_HTTP_TIMEOUT=900 dotnet restore APICore/APICore.csproj --no-cache --verbosity normal
+
+# Build the project
+RUN dotnet build APICore/APICore.csproj -c Release -o /app
+
+# Publish the project
+RUN dotnet publish APICore/APICore.csproj -c Release -o /app
+
+# Etapa de ejecución
+FROM mcr.microsoft.com/dotnet/aspnet:6.0
+
+# Establece el directorio de trabajo en /app
+WORKDIR /app
+
+# Copia los archivos publicados desde la etapa de construcción
+COPY --from=build-env /app .
+
+# Expone el puerto 5000 para la aplicación
+EXPOSE 5000
+
+# Comando para ejecutar la aplicación al iniciar el contenedor
+ENTRYPOINT ["dotnet", "APICore.dll"]

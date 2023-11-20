@@ -39,5 +39,6 @@ namespace APICore.Services
         Task<PaginatedList<User>> GetUserList(int userId, int page, int perPage);
         Task<PaginatedList<UserWithMatch>> GetUserMatches(int userId, int page, int perPage);
         Task<User> EditProfile(int userId, List<IFormFile> pictures, EditProfileRequest request);
+        Task SendVerificationEmailCode(int userId, string newEmail);
     }
 }
