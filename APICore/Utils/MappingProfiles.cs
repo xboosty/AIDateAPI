@@ -3,6 +3,7 @@ using APICore.Data.Entities;
 using APICore.Services.Utils;
 using AutoMapper;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System.Net;
 
@@ -60,6 +61,13 @@ namespace APICore.Utils
                .ForMember(d => d.EventType, opts => opts.MapFrom(source => source.EventType.ToString()));
 
             CreateMap<ReportedUsers, ReportedUserResponse>();
+
+            CreateMap<Chat, ChatResponse>()
+                            .ForMember(d => d.ChatName, opts => opts.MapFrom(s => string.Join(", ", s.Participants.Select(u => u.User.FullName))));
+
+            CreateMap<Message, MessageResponse>()
+                .ForMember(d => d.Message, opts => opts.MapFrom(s => s.Content))
+                .ForMember(d => d.Created, opts => opts.MapFrom(s => s.SentDate));
 
         }
     }

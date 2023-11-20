@@ -249,6 +249,13 @@
       "es-ES": "Usuario bloqueado no encontrado."
     }
   },
+  {
+    "Key": "404005",
+    "LocalizedValue": {
+      "en-US": "Message not found.",
+      "es-ES": "Mensaje no encontrado."
+    }
+  },
 
   //RequestTimeout
   {

@@ -19,6 +19,10 @@ namespace APICore.Data
         public DbSet<UserToken> UserToken { get; set; }
         public DbSet<BlockedUsers> BlockedUsers { get; set; }
         public DbSet<ReportedUsers> ReportedUsers { get; set; }
+        public DbSet<Chat> chats { get; set; }
+        public DbSet<ChatParticipation> chatParticipations { get; set; }
+        public DbSet<Message> messages { get; set; }
+        public DbSet<UserHubConnection> HubConnections { get; set; }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
@@ -83,6 +87,17 @@ namespace APICore.Data
                             .HasOne(b => b.ReportedUser)
                             .WithMany(u => u.Reporteds)
                             .HasForeignKey(b => b.ReportedUserId);
+
+            modelBuilder.Entity<ChatParticipation>()
+                .HasOne(c => c.Chat)
+                .WithMany(c => c.Participants)
+                .HasForeignKey(c => c.ChatId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ChatParticipation>()
+                .HasOne(c => c.User)
+                .WithMany(u => u.ParticipatedChats)
+                .HasForeignKey(c => c.UserId);
 
         }
     }

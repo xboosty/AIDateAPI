@@ -59,6 +59,7 @@ public class Startup
 
         services.AddHttpContextAccessor();
         services.AddAutoMapper(typeof(Startup));
+        services.AddSignalR();
         services.Configure<StripeOptions>(opt => opt.SecretKey = Configuration.GetSection("Stripe")["secretKey"]);
         // Adding the Azure blob clients as singletons
         services.AddTransient<IUnitOfWork, UnitOfWork>();
@@ -72,6 +73,7 @@ public class Startup
         services.AddTransient<ITwilioService, TwilioService>();
         services.AddTransient<IBlockService, BlockService>();
         services.AddTransient<IReportService, ReportService>();
+        services.AddTransient<IChatService, ChatService>();
         services.AddTransient<IStripeService, StripeService>();
     }
 
@@ -136,6 +138,7 @@ public class Startup
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllers();
+            endpoints.MapHub<ChatHub>("/chathub");
             endpoints.MapHealthChecks("/health", new HealthCheckOptions()
             {
                 ResultStatusCodes =
